@@ -127,12 +127,61 @@ func calculateBinarySearchData(value: Int) -> BinarySearchData{
 
 func os2Table() -> NSData {
     let result = NSMutableData()
-    append(result, value: UInt8(128))
-    append(result, value: Int8(-7))
-    append(result, value: UInt16(128))
-    append(result, value: Int16(-7))
-    append(result, value: UInt32(128))
-    append(result, value: Int32(-7))
+    append(result, value: UInt16(3)) // Version
+    append(result, value: Int16(982)) // Average character width
+    append(result, value: UInt16(400)) // Weight
+    append(result, value: UInt16(5)) // Width
+    append(result, value: Int16(0)) // fsType
+    append(result, value: Int16(700)) // Subscript horizontal size
+    append(result, value: Int16(650)) // Subscript vertical size
+    append(result, value: Int16(0)) // Subscript horizontal offset
+    append(result, value: Int16(143)) // Subscript vertical offset
+    append(result, value: Int16(700)) // Superscript horizontal size
+    append(result, value: Int16(650)) // Superscript vertical size
+    append(result, value: Int16(0)) // Superscript horizontal offset
+    append(result, value: Int16(453)) // Superscrpt vertical offset
+    append(result, value: Int16(50)) // Strikeout stroke width
+    append(result, value: Int16(259)) // Strikeout stroke position
+    append(result, value: Int16(0)) // Family class
+
+    // Panose
+    append(result, value: UInt8(2))
+    append(result, value: UInt8(0))
+    append(result, value: UInt8(4))
+    append(result, value: UInt8(0))
+    append(result, value: UInt8(0))
+    append(result, value: UInt8(0))
+    append(result, value: UInt8(0))
+    append(result, value: UInt8(0))
+    append(result, value: UInt8(0))
+    append(result, value: UInt8(0))
+
+    append(result, value: UInt32(2147483823)) // FIXME: Update these
+    append(result, value: UInt32(268443720))
+    append(result, value: UInt32(0))
+    append(result, value: UInt32(0))
+
+    let fourCharacterTag = FourCharacterTag(string: "W3C ")
+    append(result, value: fourCharacterTag.a)
+    append(result, value: fourCharacterTag.b)
+    append(result, value: fourCharacterTag.c)
+    append(result, value: fourCharacterTag.d)
+
+    append(result, value: UInt16(0x40)) // Regular style
+    append(result, value: UInt16(0x20)) // FIXME: Update this
+    append(result, value: UInt16(0xfeff)) // FIXME: Update this
+    append(result, value: Int16(800)) // Typographic ascender
+    append(result, value: Int16(-200)) // Typographic descender
+    append(result, value: Int16(0)) // Typographic line gap
+    append(result, value: UInt16(800)) // Windows ascent
+    append(result, value: UInt16(200)) // Windows descent
+    append(result, value: UInt32(1)) // FIXME: Update this
+    append(result, value: UInt32(0)) // FIXME: Update this
+    append(result, value: Int16(800)) // x height
+    append(result, value: Int16(800)) // Capital letter height
+    append(result, value: UInt16(0)) // Default character
+    append(result, value: UInt16(32)) // Break character
+    append(result, value: UInt16(0)) // Maximum context necessary
     return result
 }
 
