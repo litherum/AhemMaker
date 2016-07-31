@@ -8,6 +8,57 @@
 
 import Foundation
 
+struct Point {
+    let x: Int16
+    let y: Int16
+    let onCurve = true
+}
+
+typealias Contour = [Point]
+
+typealias Path = [Contour]
+
+let emptySquare: Path = [[Point(x: 125, y: 0), Point(x: 125, y: 800), Point(x: 875, y: 800), Point(x: 875, y: 0)], [Point(x: 250, y: 125), Point(x: 750, y: 125), Point(x: 750, y: 675), Point(x: 250, y: 675)]]
+let fullSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
+let ascenderSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: 0), Point(x: 0, y: 0)]]
+let descenderSquare: Path = [[Point(x: 0, y: 0), Point(x: 1000, y: 0), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
+let emptyPath: Path = [[]]
+
+struct Glyph {
+    // glyph name
+    let advanceWidth: UInt16
+    let leftSideBearing: Int16
+    let path: Path
+}
+
+let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare)
+
+var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare),
+    Glyph(advanceWidth: 0, leftSideBearing: 0, path: fullSquare)]
+for _ in 2 ... 81 {
+    glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare))
+}
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare))
+for _ in 83 ... 99 {
+    glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare))
+}
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare))
+for _ in 101 ... 244 {
+    glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare))
+}
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+
 func append(data: NSMutableData, value: UInt8) {
     let a = [value]
     data.appendBytes(a, length: a.count)
