@@ -185,6 +185,22 @@ func os2Table() -> NSData {
     return result
 }
 
+func gaspTable() -> NSData {
+    let result = NSMutableData()
+    append(result, value: UInt16(0)) // Version
+    append(result, value: UInt16(3)) // Number of records below
+
+    append(result, value: UInt16(8)) // Upper size limit
+    append(result, value: UInt16(2)) // Greyscale
+
+    append(result, value: UInt16(16)) // Upper size limit
+    append(result, value: UInt16(1)) // Gridfit
+
+    append(result, value: UInt16(0xFFFF)) // Upper size limit
+    append(result, value: UInt16(3)) // Gridfit and greyscale
+    return result
+}
+
 struct FourCharacterTag {
     let a: UInt8
     let b: UInt8
@@ -235,8 +251,8 @@ func appendTable(result: NSMutableData, table: NSData, headerLocation: Int, tag:
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
 
-let tables = [os2Table()]
-let tableCodes = [FourCharacterTag(string: "OS/2")]
+let tables = [os2Table(), gaspTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
