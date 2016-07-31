@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C20D3F821D4E92470060BEA2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F811D4E92470060BEA2 /* main.swift */; };
+		C20D3F8B1D4E967C0060BEA2 /* Utils.c in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F891D4E967C0060BEA2 /* Utils.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,9 @@
 /* Begin PBXFileReference section */
 		C20D3F7E1D4E92470060BEA2 /* AhemMaker */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AhemMaker; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20D3F811D4E92470060BEA2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		C20D3F881D4E967C0060BEA2 /* AhemMaker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AhemMaker-Bridging-Header.h"; sourceTree = "<group>"; };
+		C20D3F891D4E967C0060BEA2 /* Utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Utils.c; sourceTree = "<group>"; };
+		C20D3F8A1D4E967C0060BEA2 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +62,9 @@
 			isa = PBXGroup;
 			children = (
 				C20D3F811D4E92470060BEA2 /* main.swift */,
+				C20D3F891D4E967C0060BEA2 /* Utils.c */,
+				C20D3F8A1D4E967C0060BEA2 /* Utils.h */,
+				C20D3F881D4E967C0060BEA2 /* AhemMaker-Bridging-Header.h */,
 			);
 			path = AhemMaker;
 			sourceTree = "<group>";
@@ -120,6 +127,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C20D3F821D4E92470060BEA2 /* main.swift in Sources */,
+				C20D3F8B1D4E967C0060BEA2 /* Utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,14 +219,21 @@
 		C20D3F861D4E92470060BEA2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AhemMaker/AhemMaker-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		C20D3F871D4E92470060BEA2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AhemMaker/AhemMaker-Bridging-Header.h";
 			};
 			name = Release;
 		};
