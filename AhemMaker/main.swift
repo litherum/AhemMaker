@@ -106,6 +106,14 @@ func overwrite(data: NSMutableData, location: Int, value: UInt32) {
     bytes[location + 3] = d
 }
 
+func overwrite(data: NSMutableData, location: Int, value: UInt16) {
+    let a = UInt8(value >> 8)
+    let b = UInt8(value & 0xFF)
+    let bytes = UnsafeMutablePointer<UInt8>(data.mutableBytes)
+    bytes[location] = a
+    bytes[location + 1] = b
+}
+
 struct BinarySearchData {
     let searchRange: UInt16
     let entrySelector: UInt16
@@ -296,6 +304,171 @@ func hmtxTable() -> NSData {
     return result
 }
 
+func maxpTable() -> NSData {
+    let result = NSMutableData()
+
+    var maxPoints = 0
+    var maxContours = 0
+    for glyph in glyphs {
+        var currentPoints = 0
+        for contour in glyph.path {
+            currentPoints = currentPoints + contour.count
+        }
+        maxPoints = max(maxPoints, currentPoints)
+        maxContours = max(maxContours, glyph.path.count)
+    }
+
+    append(result, value: UInt32(0x10000)) // Version
+    append(result, value: UInt16(glyphs.count))
+    append(result, value: UInt16(maxPoints))
+    append(result, value: UInt16(maxContours))
+    append(result, value: UInt16(0)) // Maximum points in compound glyph
+    append(result, value: UInt16(0)) // Maximum contours in compound glyph
+    append(result, value: UInt16(1)) // Maximum zones
+    append(result, value: UInt16(0)) // Points used in twilight zone
+    append(result, value: UInt16(0)) // Number of storage area locations
+    append(result, value: UInt16(0)) // Number of function definitions
+    append(result, value: UInt16(0)) // Number of instruction definitions
+    append(result, value: UInt16(0)) // Maximum stack depth
+    append(result, value: UInt16(0)) // Maximum size of instructions
+    append(result, value: UInt16(0)) // Maximum component elements
+    append(result, value: UInt16(0)) // Maximum component depth
+    return result
+}
+
+func nameTable() -> NSData {
+    let result = NSMutableData()
+
+    let copyright = "The Ahem font belongs to the public domain. In jurisdictions that do not recognize public domain ownership of these files, the following Creative Commons Zero declaration applies: http://labs.creativecommons.org/licenses/zero-waive/1.0/us/legalcode"
+    let family = "Ahem"
+    let subfamily = "Regular"
+    let uniqueSubfamily = "Version 1.50 Ahem"
+    let fullName = "Ahem"
+    let nameTableVersion = "Version 1.50"
+    let postScriptName = "Ahem"
+    let description = "The Ahem font was developed by Todd Fahrner to help test writers  develop predictable tests. The font's em square is exactly square. Its ascent and descent is exactly the size of the em square. This means that the font's extent is exactly the same as its line-height, meaning that it can be exactly aligned with padding, borders, margins, and so forth. Most characters are the solid em square, except \"É\" and \"p\", which show ascent/descent from the baseline."
+    let vendorURL = "http://www.w3c.org"
+    let licenseURL = "http://dev.w3.org/CSS/fonts/ahem/COPYING\n"
+    let preferredFamily = "Ahem"
+    let preferredSubfamily = "Regular"
+    let compatibleFullName = "Ahem"
+
+    let unicode = UInt16(0)
+    let macintosh = UInt16(1)
+    let windows = UInt16(3)
+
+    let defaultSemantics = UInt16(0)
+    let roman = UInt16(0)
+    let unicodeBMP = UInt16(1)
+
+    let english = UInt16(0)
+    let enUS = UInt16(0x0409)
+
+    let copyrightID = UInt16(0)
+    let familyID = UInt16(1)
+    let subfamilyID = UInt16(2)
+    let uniqueSubfamilyID = UInt16(3)
+    let fullNameID = UInt16(4)
+    let nameTableVersionID = UInt16(5)
+    let postScriptNameID = UInt16(6)
+    let descriptionID = UInt16(10)
+    let vendorURLID = UInt16(11)
+    let licenseURLID = UInt16(14)
+    let preferredFamilyID = UInt16(16)
+    let preferredSubfamilyID = UInt16(17)
+    let compatibleFullNameID = UInt16(18)
+
+    let numberOfRecords = 36
+    let offsetToStringData = 6 + 12 * numberOfRecords
+
+    append(result, value: UInt16(0)) // Format
+    append(result, value: UInt16(numberOfRecords))
+    append(result, value: UInt16(offsetToStringData))
+
+    let headerLocation = result.length
+    for _ in 0 ..< numberOfRecords {
+        append(result, value: UInt16(0))
+        append(result, value: UInt16(0))
+        append(result, value: UInt16(0))
+        append(result, value: UInt16(0))
+        append(result, value: UInt16(0))
+        append(result, value: UInt16(0))
+    }
+
+    assert(result.length == offsetToStringData)
+
+    var currentRecord = 0
+
+    let appendString = { (platformID: UInt16, platformSpecificID: UInt16, languageID: UInt16, nameID: UInt16, string: String) in
+        overwrite(result, location: headerLocation + currentRecord * 12 , value: platformID)
+        overwrite(result, location: headerLocation + currentRecord * 12 + 2, value: platformSpecificID)
+        overwrite(result, location: headerLocation + currentRecord * 12 + 4, value: languageID)
+        overwrite(result, location: headerLocation + currentRecord * 12 + 6, value: nameID)
+
+        var stringEncoding = NSUnicodeStringEncoding
+        if platformID == unicode && platformSpecificID == defaultSemantics && languageID == 0 {
+            stringEncoding = NSUnicodeStringEncoding
+        } else if platformID == macintosh && platformSpecificID == roman && languageID == english {
+            stringEncoding = NSMacOSRomanStringEncoding
+        } else if platformID == windows && platformSpecificID == unicodeBMP && languageID == enUS {
+            stringEncoding = NSUnicodeStringEncoding
+        } else {
+            fatalError()
+        }
+        let length = string.lengthOfBytesUsingEncoding(stringEncoding)
+        var bytes = [UInt8](count: length, repeatedValue: 0)
+        string.getBytes(&bytes, maxLength: length, usedLength: nil, encoding: stringEncoding, options: NSStringEncodingConversionOptions(), range: (string.characters.startIndex ..< string.characters.endIndex), remainingRange: nil)
+
+        overwrite(result, location: headerLocation + currentRecord * 12 + 8, value: UInt16(length))
+        overwrite(result, location: headerLocation + currentRecord * 12 + 10, value: UInt16(result.length - offsetToStringData))
+
+        result.appendBytes(bytes, length: bytes.count)
+
+        currentRecord = currentRecord + 1
+    }
+
+    appendString(unicode, defaultSemantics, 0, copyrightID, copyright)
+    appendString(unicode, defaultSemantics, 0, familyID, family)
+    appendString(unicode, defaultSemantics, 0, subfamilyID, subfamily)
+    appendString(unicode, defaultSemantics, 0, uniqueSubfamilyID, uniqueSubfamily)
+    appendString(unicode, defaultSemantics, 0, fullNameID, fullName)
+    appendString(unicode, defaultSemantics, 0, nameTableVersionID, nameTableVersion)
+    appendString(unicode, defaultSemantics, 0, postScriptNameID, postScriptName)
+    appendString(unicode, defaultSemantics, 0, descriptionID, description)
+    appendString(unicode, defaultSemantics, 0, vendorURLID, vendorURL)
+    appendString(unicode, defaultSemantics, 0, licenseURLID, licenseURL)
+    appendString(macintosh, roman, english, copyrightID, copyright)
+    appendString(macintosh, roman, english, familyID, family)
+    appendString(macintosh, roman, english, subfamilyID, subfamily)
+    appendString(macintosh, roman, english, uniqueSubfamilyID, uniqueSubfamily)
+    appendString(macintosh, roman, english, fullNameID, fullName)
+    appendString(macintosh, roman, english, nameTableVersionID, nameTableVersion)
+    appendString(macintosh, roman, english, postScriptNameID, postScriptName)
+    appendString(macintosh, roman, english, descriptionID, description)
+    appendString(macintosh, roman, english, vendorURLID, vendorURL)
+    appendString(macintosh, roman, english, licenseURLID, licenseURL)
+    appendString(macintosh, roman, english, preferredFamilyID, preferredFamily)
+    appendString(macintosh, roman, english, preferredSubfamilyID, preferredSubfamily)
+    appendString(macintosh, roman, english, compatibleFullNameID, compatibleFullName)
+    appendString(windows, unicodeBMP, enUS, copyrightID, copyright)
+    appendString(windows, unicodeBMP, enUS, familyID, family)
+    appendString(windows, unicodeBMP, enUS, subfamilyID, subfamily)
+    appendString(windows, unicodeBMP, enUS, uniqueSubfamilyID, uniqueSubfamily)
+    appendString(windows, unicodeBMP, enUS, fullNameID, fullName)
+    appendString(windows, unicodeBMP, enUS, nameTableVersionID, nameTableVersion)
+    appendString(windows, unicodeBMP, enUS, postScriptNameID, postScriptName)
+    appendString(windows, unicodeBMP, enUS, descriptionID, description)
+    appendString(windows, unicodeBMP, enUS, vendorURLID, vendorURL)
+    appendString(windows, unicodeBMP, enUS, licenseURLID, licenseURL)
+    appendString(windows, unicodeBMP, enUS, preferredFamilyID, preferredFamily)
+    appendString(windows, unicodeBMP, enUS, preferredSubfamilyID, preferredSubfamily)
+    appendString(windows, unicodeBMP, enUS, compatibleFullNameID, compatibleFullName)
+
+    assert(currentRecord == numberOfRecords)
+
+    return result
+}
+
 struct FourCharacterTag {
     let a: UInt8
     let b: UInt8
@@ -346,8 +519,8 @@ func appendTable(result: NSMutableData, table: NSData, headerLocation: Int, tag:
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
 
-let tables = [os2Table(), gaspTable(), headTable(), hheaTable(), hmtxTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx")]
+let tables = [os2Table(), gaspTable(), headTable(), hheaTable(), hmtxTable(), maxpTable(), nameTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
