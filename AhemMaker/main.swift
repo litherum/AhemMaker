@@ -232,6 +232,8 @@ func generateSegments() -> [Segment] {
             minGlyph = nil
         }
     }
+
+    result.append(Segment(startCode: 0xFFFF, endCode: 0xFFFF, idDelta: 1, idRangeOffset: 0))
     return result
 }
 
