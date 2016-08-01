@@ -234,6 +234,7 @@ func generateSegments() -> [Segment] {
     }
 
     // FIXME: handle the last few code points correctly
+    assert(minCodePoint == nil)
     result.append(Segment(startCode: 0xFFFF, endCode: 0xFFFF, idDelta: 1, idRangeOffset: 0))
     return result
 }
@@ -280,6 +281,7 @@ func cmapTable() -> NSData {
         assert(segment.idRangeOffset == 0)
         append(result, value: UInt16(segment.idRangeOffset))
     }
+
     assert(result.length - subtableLocation == subtableLength)
     return result
 }
@@ -297,6 +299,17 @@ func gaspTable() -> NSData {
 
     append(result, value: UInt16(0xFFFF)) // Upper size limit
     append(result, value: UInt16(3)) // Gridfit and greyscale
+    return result
+}
+
+func glyfTable() -> NSData {
+    let result = NSMutableData()
+    for specificGlyphData in glyphData {
+        result.appendData(specificGlyphData)
+        if result.length % 2 == 1 {
+            append(result, value: UInt8(0))
+        }
+    }
     return result
 }
 
@@ -391,6 +404,25 @@ func hmtxTable() -> NSData {
     for glyph in glyphs {
         append(result, value: UInt16(glyph.advanceWidth))
         append(result, value: Int16(glyph.leftSideBearing))
+    }
+    return result
+}
+
+func locaTable() -> NSData {
+    let result = NSMutableData()
+    var offsets = [Int]()
+    var offset = 0
+    for individualGlyphData in glyphData {
+        offsets.append(offset)
+        offset = offset + individualGlyphData.length
+        if offset % 2 == 1 {
+            offset = offset + 1
+        }
+    }
+    offsets.append(offset)
+    assert(offset / 2 <= 0xFFFF)
+    for offset in offsets {
+        append(result, value: UInt16(offset) / 2)
     }
     return result
 }
@@ -598,6 +630,123 @@ func postTable() -> NSData {
     return result
 }
 
+func generateGlyphData() -> [NSData] {
+    var result = [NSData]()
+    for glyph in glyphs {
+        let r = NSMutableData()
+
+        var xMin = Int16.max
+        var yMin = Int16.max
+        var xMax = Int16.min
+        var yMax = Int16.min
+        var endPtsOfContours = [UInt16]()
+        var currentPointCount = 0
+        if glyph.path.isEmpty {
+            xMin = 0
+            yMin = 0
+            xMax = 0
+            yMax = 0
+        } else {
+            for contour in glyph.path {
+                currentPointCount = currentPointCount + contour.count
+                endPtsOfContours.append(UInt16(currentPointCount))
+                for point in contour {
+                    xMin = min(xMin, point.x)
+                    yMin = min(yMin, point.y)
+                    xMax = max(xMax, point.x)
+                    yMax = max(yMax, point.y)
+                }
+            }
+        }
+
+        append(r, value: Int16(glyph.path.count))
+        append(r, value: Int16(xMin))
+        append(r, value: Int16(yMin))
+        append(r, value: Int16(xMax))
+        append(r, value: Int16(yMax))
+
+        for endPoint in endPtsOfContours {
+            append(r, value: UInt16(endPoint))
+        }
+        append(r, value: UInt16(0)) // length of instructions
+
+        var flags = [UInt8]()
+        let xCoordinates = NSMutableData()
+        let yCoordinates = NSMutableData()
+
+        let onCurve = UInt8(1)
+        let xShort = UInt8(2)
+        let yShort = UInt8(4)
+        let repeatCount = UInt8(8)
+        let xIsSame = UInt8(16)
+        let yIsSame = UInt8(32)
+
+        var previousX = Int16(0)
+        var previousY = Int16(0)
+        for contour in glyph.path {
+            for point in contour {
+                var flag = UInt8(0)
+                if point.onCurve {
+                    flag = flag | onCurve
+                }
+                if point.x == previousX {
+                    flag = flag | xIsSame
+                } else {
+                    if abs(point.x) < 256 {
+                        flag = flag | xShort
+                        append(xCoordinates, value: UInt8(abs(point.x)))
+                        if point.x >= 0 {
+                            flag = flag | xIsSame
+                        }
+                    } else {
+                        append(xCoordinates, value: Int16(point.x - previousX))
+                    }
+                }
+                if point.y == previousY {
+                    flag = flag | yIsSame
+                } else {
+                    if abs(point.y) < 256 {
+                        flag = flag | yShort
+                        append(yCoordinates, value: UInt8(abs(point.y)))
+                        if point.y >= 0 {
+                            flag = flag | yIsSame
+                        }
+                    } else {
+                        append(yCoordinates, value: Int16(point.y - previousY))
+                    }
+                }
+                previousX = point.x
+                previousY = point.y
+            }
+        }
+
+        let flagData = NSMutableData()
+        var flagIndex = 0
+        while flagIndex < flags.count {
+            var flag = flags[flagIndex]
+            var run = flagIndex + 1
+            while run < flags.count && flags[run] == flag {
+                run = run + 1
+            }
+            if run > flagIndex + 1 {
+                flag = flag | repeatCount
+                append(flagData, value: UInt8(flag))
+                append(flagData, value: UInt8(flagIndex - 1))
+            } else {
+                append(flagData, value: UInt8(flag))
+            }
+            flagIndex = run
+        }
+
+        r.appendData(flagData)
+        r.appendData(xCoordinates)
+        r.appendData(yCoordinates)
+
+        result.append(r)
+    }
+    return result
+}
+
 struct FourCharacterTag {
     let a: UInt8
     let b: UInt8
@@ -648,8 +797,10 @@ func appendTable(result: NSMutableData, table: NSData, headerLocation: Int, tag:
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
 
-let tables = [os2Table(), cmapTable(), gaspTable(), headTable(), hheaTable(), hmtxTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let glyphData = generateGlyphData()
+
+let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
