@@ -10,6 +10,7 @@
 		C20D3F821D4E92470060BEA2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F811D4E92470060BEA2 /* main.swift */; };
 		C20D3F8B1D4E967C0060BEA2 /* Utils.c in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F891D4E967C0060BEA2 /* Utils.c */; };
 		C20D3FA01D4EE2CC0060BEA2 /* GlyphNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F9F1D4EE2CC0060BEA2 /* GlyphNames.swift */; };
+		C20D3FA21D4FE6BA0060BEA2 /* CharacterMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3FA11D4FE6BA0060BEA2 /* CharacterMap.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 		C20D3F891D4E967C0060BEA2 /* Utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Utils.c; sourceTree = "<group>"; };
 		C20D3F8A1D4E967C0060BEA2 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		C20D3F9F1D4EE2CC0060BEA2 /* GlyphNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlyphNames.swift; sourceTree = "<group>"; };
+		C20D3FA11D4FE6BA0060BEA2 /* CharacterMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterMap.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 				C20D3F8A1D4E967C0060BEA2 /* Utils.h */,
 				C20D3F881D4E967C0060BEA2 /* AhemMaker-Bridging-Header.h */,
 				C20D3F9F1D4EE2CC0060BEA2 /* GlyphNames.swift */,
+				C20D3FA11D4FE6BA0060BEA2 /* CharacterMap.swift */,
 			);
 			path = AhemMaker;
 			sourceTree = "<group>";
@@ -129,6 +132,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C20D3FA21D4FE6BA0060BEA2 /* CharacterMap.swift in Sources */,
 				C20D3FA01D4EE2CC0060BEA2 /* GlyphNames.swift in Sources */,
 				C20D3F821D4E92470060BEA2 /* main.swift in Sources */,
 				C20D3F8B1D4E967C0060BEA2 /* Utils.c in Sources */,

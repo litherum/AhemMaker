@@ -126,17 +126,17 @@ struct BinarySearchData {
     let rangeShift: UInt16
 }
 
-func calculateBinarySearchData(value: Int) -> BinarySearchData{
+func calculateBinarySearchData(value: Int, size: Int) -> BinarySearchData {
     var pot = 1
     var log = 0
-    while pot <= tables.count {
+    while pot <= value {
         log = log + 1
         pot = pot * 2
     }
     log = log - 1
     pot = pot / 2
-    let searchRange = UInt16(pot * 16)
-    return BinarySearchData(searchRange: searchRange, entrySelector: UInt16(log), rangeShift: UInt16(value) * 16 - searchRange)
+    let searchRange = UInt16(pot * size)
+    return BinarySearchData(searchRange: searchRange, entrySelector: UInt16(log), rangeShift: UInt16(value * size) - searchRange)
 }
 
 func os2Table() -> NSData {
@@ -196,6 +196,88 @@ func os2Table() -> NSData {
     append(result, value: UInt16(0)) // Default character
     append(result, value: UInt16(32)) // Break character
     append(result, value: UInt16(0)) // Maximum context necessary
+    return result
+}
+
+struct Segment {
+    let startCode: UInt32
+    let endCode: UInt32
+    let idDelta: UInt16
+    let idRangeOffset: UInt16
+}
+
+func generateSegments() -> [Segment] {
+    assert(characterMap.count == glyphs.count)
+    var result = [Segment]()
+    var minCodePoint: Int?
+    var minGlyph: Int?
+    for codePoint in 1 ..< 0xFFFF {
+        if let glyph = characterMap[codePoint] {
+            if minCodePoint == nil {
+                minCodePoint = codePoint
+                minGlyph = glyph
+            } else {
+                let delta = minGlyph! - minCodePoint!
+                let probe = delta + codePoint
+                if probe != glyph {
+                    result.append(Segment(startCode: UInt32(minCodePoint!), endCode: UInt32(codePoint) - 1, idDelta: cast16BitInt(Int16(delta)), idRangeOffset: 0))
+                    minCodePoint = codePoint
+                    minGlyph = glyph
+                }
+            }
+        } else if minCodePoint != nil {
+            let delta = UInt16(minGlyph!) &- UInt16(minCodePoint!)
+            result.append(Segment(startCode: UInt32(minCodePoint!), endCode: UInt32(codePoint) - 1, idDelta: delta, idRangeOffset: 0))
+            minCodePoint = nil
+            minGlyph = nil
+        }
+    }
+    return result
+}
+
+func cmapTable() -> NSData {
+    let result = NSMutableData()
+
+    let segments = generateSegments()
+    let binarySearchData = calculateBinarySearchData(segments.count, size: 2)
+    let subtableLocation = 20
+    let subtableLength = 16 + 4 * 2 * segments.count
+
+    append(result, value: UInt16(0)) // Version
+    append(result, value: UInt16(2)) // Number of subtables
+
+    append(result, value: UInt16(0)) // Unicode
+    append(result, value: UInt16(3)) // Version 2.0 or later semantics (BMP only)
+    append(result, value: UInt32(subtableLocation)) // Offset
+
+    append(result, value: UInt16(3)) // Windows
+    append(result, value: UInt16(1)) // Unicode BMP-only (UCS-2)
+    append(result, value: UInt32(subtableLocation)) // Offset
+
+    assert(result.length == subtableLocation)
+
+    append(result, value: UInt16(4)) // Format
+    append(result, value: UInt16(subtableLength)) // Length in bytes of the subtable
+    append(result, value: UInt16(0)) // Language (Unused)
+    append(result, value: UInt16(segments.count * 2))
+    append(result, value: UInt16(binarySearchData.searchRange))
+    append(result, value: UInt16(binarySearchData.entrySelector))
+    append(result, value: UInt16(binarySearchData.rangeShift))
+    for segment in segments {
+        append(result, value: UInt16(segment.endCode))
+    }
+    append(result, value: UInt16(0))
+    for segment in segments {
+        append(result, value: UInt16(segment.startCode))
+    }
+    for segment in segments {
+        append(result, value: UInt16(segment.idDelta))
+    }
+    for segment in segments {
+        assert(segment.idRangeOffset == 0)
+        append(result, value: UInt16(segment.idRangeOffset))
+    }
+    assert(result.length - subtableLocation == subtableLength)
     return result
 }
 
@@ -563,14 +645,14 @@ func appendTable(result: NSMutableData, table: NSData, headerLocation: Int, tag:
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
 
-let tables = [os2Table(), gaspTable(), headTable(), hheaTable(), hmtxTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let tables = [os2Table(), cmapTable(), gaspTable(), headTable(), hheaTable(), hmtxTable(), maxpTable(), nameTable(), postTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
 append(result, value: UInt32(1 << 16))
 append(result, value: UInt16(tables.count))
-let binarySearchData = calculateBinarySearchData(tables.count)
+let binarySearchData = calculateBinarySearchData(tables.count, size: 16)
 append(result, value: UInt16(binarySearchData.searchRange))
 append(result, value: UInt16(binarySearchData.entrySelector))
 append(result, value: UInt16(binarySearchData.rangeShift))
