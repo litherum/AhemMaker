@@ -233,6 +233,7 @@ func generateSegments() -> [Segment] {
         }
     }
 
+    // FIXME: handle the last few code points correctly
     result.append(Segment(startCode: 0xFFFF, endCode: 0xFFFF, idDelta: 1, idRangeOffset: 0))
     return result
 }
