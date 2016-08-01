@@ -29,35 +29,41 @@ struct Glyph {
     let advanceWidth: UInt16
     let leftSideBearing: Int16
     let path: Path
+    var name: String = ""
 }
 
-let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare)
+let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare, name: "")
 
-var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare),
-    Glyph(advanceWidth: 0, leftSideBearing: 0, path: fullSquare)]
+var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare, name: ""),
+    Glyph(advanceWidth: 0, leftSideBearing: 0, path: fullSquare, name: "")]
 for _ in 2 ... 81 {
-    glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare))
+    glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare, name: ""))
 for _ in 83 ... 99 {
-    glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare))
+    glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare, name: ""))
 for _ in 101 ... 244 {
-    glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare))
+    glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
+
+assert(glyphs.count == glyphNames.count)
+for i in 0 ..< glyphs.count {
+    glyphs[i].name = glyphNames[i]
+}
 
 func append(data: NSMutableData, value: UInt8) {
     let a = [value]
@@ -469,6 +475,44 @@ func nameTable() -> NSData {
     return result
 }
 
+func postTable() -> NSData {
+    let result = NSMutableData()
+    append(result, value: UInt32(0x20000)) // Format
+    append(result, value: UInt32(0)) // Italic angle
+    append(result, value: Int16(-133)) // Underline position
+    append(result, value: Int16(20)) // Underline thickness
+    append(result, value: UInt32(0)) // Not fixed-pitch
+    append(result, value: UInt32(0)) // Minimum memory needed in a type 42 representation
+    append(result, value: UInt32(0)) // Maximum memory needed in a type 42 representation
+    append(result, value: UInt32(0)) // Minimum memory needed in a type 1 representation
+    append(result, value: UInt32(0)) // Maximum memory needed in a type 1 representation
+    append(result, value: UInt16(glyphs.count))
+
+    var newGlyphNamesArray = [String]()
+    var newGlyphNames = [String : Int]()
+    for glyph in glyphs {
+        if let glyphNameID = glyphMap[glyph.name] {
+            append(result, value: UInt16(glyphNameID))
+        } else if let newGlyphNameID = newGlyphNames[glyph.name] {
+            append(result, value: UInt16(newGlyphNameID))
+        } else {
+            let newID = newGlyphNamesArray.count
+            newGlyphNamesArray.append(glyph.name)
+            newGlyphNames[glyph.name] = newID + 258
+            append(result, value: UInt16(newID + 258))
+        }
+    }
+
+    for name in newGlyphNamesArray {
+        append(result, value: UInt8(name.utf8.count))
+        for codeUnit in name.utf8 {
+            append(result, value: UInt8(codeUnit))
+        }
+    }
+
+    return result
+}
+
 struct FourCharacterTag {
     let a: UInt8
     let b: UInt8
@@ -519,8 +563,8 @@ func appendTable(result: NSMutableData, table: NSData, headerLocation: Int, tag:
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
 
-let tables = [os2Table(), gaspTable(), headTable(), hheaTable(), hmtxTable(), maxpTable(), nameTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name")]
+let tables = [os2Table(), gaspTable(), headTable(), hheaTable(), hmtxTable(), maxpTable(), nameTable(), postTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
