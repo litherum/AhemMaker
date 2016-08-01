@@ -22,7 +22,7 @@ let emptySquare: Path = [[Point(x: 125, y: 0), Point(x: 125, y: 800), Point(x: 8
 let fullSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
 let ascenderSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: 0), Point(x: 0, y: 0)]]
 let descenderSquare: Path = [[Point(x: 0, y: 0), Point(x: 1000, y: 0), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
-let emptyPath: Path = [[]]
+let emptyPath: Path = []
 
 struct Glyph {
     // glyph name
@@ -201,6 +201,101 @@ func gaspTable() -> NSData {
     return result
 }
 
+func headTable() -> NSData {
+    let result = NSMutableData()
+
+    var xMin = Int16.max
+    var xMax = Int16.min
+    var yMin = Int16.max
+    var yMax = Int16.min
+    for glyph in glyphs {
+        for contour in glyph.path {
+            for point in contour {
+                xMin = min(xMin, point.x)
+                xMax = max(xMax, point.x)
+                yMin = min(yMin, point.y)
+                yMax = max(yMax, point.y)
+            }
+        }
+    }
+
+    append(result, value: UInt32(0x10000)) // Version
+    append(result, value: UInt32(0x18000)) // Font revision
+    append(result, value: UInt32(0)) // FIXME: Implement this
+    append(result, value: UInt8(0x5F)) // Magic number
+    append(result, value: UInt8(0x0F)) // Magic number
+    append(result, value: UInt8(0x3C)) // Magic number
+    append(result, value: UInt8(0xF5)) // Magic number
+    append(result, value: UInt16(0x9)) // y=0 is baseline, and use integer scaling
+    append(result, value: UInt16(1000)) // Units per em
+    append(result, value: UInt32(0)) // Created datetime 1
+    append(result, value: UInt32(3010420569)) // Created datetime 2
+    append(result, value: UInt32(0)) // Modified datetime 1
+    append(result, value: UInt32(3302861603)) // Modified datetime 2 // FIXME: update this
+    append(result, value: Int16(xMin))
+    append(result, value: Int16(yMin))
+    append(result, value: Int16(xMax))
+    append(result, value: Int16(yMax))
+    append(result, value: UInt16(0)) // Style: normal
+    append(result, value: UInt16(3)) // Smallest readable size
+    append(result, value: Int16(2)) // Only LTR & neutrals (FIXME: update this)
+    append(result, value: Int16(0)) // 2-byte offsets in loca table // FIXME: Investigate this
+    append(result, value: Int16(0))
+    return result
+}
+
+func hheaTable() -> NSData {
+    let result = NSMutableData()
+
+    var advanceWidthMax = UInt16.min
+    var minLeftSideBearing = Int16.max
+    var xMaxExtent = Int16.min
+    for glyph in glyphs {
+        advanceWidthMax = max(advanceWidthMax, glyph.advanceWidth)
+        minLeftSideBearing = min(minLeftSideBearing, glyph.leftSideBearing)
+        var xMin = Int16.max
+        var xMax = Int16.min
+        if glyph.path.isEmpty {
+            xMin = 0
+            xMax = 0
+        } else {
+            for contour in glyph.path {
+                for point in contour {
+                    xMin = min(xMin, point.x)
+                    xMax = max(xMax, point.x)
+                }
+            }
+        }
+        xMaxExtent = max(xMaxExtent, glyph.leftSideBearing + (xMax - xMin))
+    }
+
+    append(result, value: UInt32(0x10000)) // Version
+    append(result, value: Int16(800)) // Ascent
+    append(result, value: Int16(-200)) // Descent
+    append(result, value: Int16(0)) // Line Gap
+    append(result, value: UInt16(advanceWidthMax))
+    append(result, value: Int16(minLeftSideBearing))
+    append(result, value: Int16(0)) // Minimum right side bearing
+    append(result, value: Int16(xMaxExtent))
+    append(result, value: Int16(1)) // Caret slope rise
+    append(result, value: Int16(0)) // Caret slope run
+    append(result, value: Int16(0)) // Caret offset
+    append(result, value: UInt32(0)) // Reserved
+    append(result, value: UInt32(0)) // Reserved
+    append(result, value: Int16(0))
+    append(result, value: UInt16(glyphs.count))
+    return result
+}
+
+func hmtxTable() -> NSData {
+    let result = NSMutableData()
+    for glyph in glyphs {
+        append(result, value: UInt16(glyph.advanceWidth))
+        append(result, value: Int16(glyph.leftSideBearing))
+    }
+    return result
+}
+
 struct FourCharacterTag {
     let a: UInt8
     let b: UInt8
@@ -251,8 +346,8 @@ func appendTable(result: NSMutableData, table: NSData, headerLocation: Int, tag:
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
 
-let tables = [os2Table(), gaspTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp")]
+let tables = [os2Table(), gaspTable(), headTable(), hheaTable(), hmtxTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
