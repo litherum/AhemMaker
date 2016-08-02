@@ -649,7 +649,7 @@ func generateGlyphData() -> [NSData] {
         } else {
             for contour in glyph.path {
                 currentPointCount = currentPointCount + contour.count
-                endPtsOfContours.append(UInt16(currentPointCount))
+                endPtsOfContours.append(UInt16(currentPointCount - 1))
                 for point in contour {
                     xMin = min(xMin, point.x)
                     yMin = min(yMin, point.y)
@@ -692,10 +692,11 @@ func generateGlyphData() -> [NSData] {
                 if point.x == previousX {
                     flag = flag | xIsSame
                 } else {
-                    if abs(point.x) < 256 {
+                    let delta = point.x - previousX
+                    if abs(delta) < 256 {
                         flag = flag | xShort
-                        append(xCoordinates, value: UInt8(abs(point.x)))
-                        if point.x >= 0 {
+                        append(xCoordinates, value: UInt8(abs(delta)))
+                        if delta >= 0 {
                             flag = flag | xIsSame
                         }
                     } else {
@@ -705,16 +706,18 @@ func generateGlyphData() -> [NSData] {
                 if point.y == previousY {
                     flag = flag | yIsSame
                 } else {
-                    if abs(point.y) < 256 {
+                    let delta = point.y - previousY
+                    if abs(delta) < 256 {
                         flag = flag | yShort
-                        append(yCoordinates, value: UInt8(abs(point.y)))
-                        if point.y >= 0 {
+                        append(yCoordinates, value: UInt8(abs(delta)))
+                        if delta >= 0 {
                             flag = flag | yIsSame
                         }
                     } else {
                         append(yCoordinates, value: Int16(point.y - previousY))
                     }
                 }
+                flags.append(flag)
                 previousX = point.x
                 previousY = point.y
             }
