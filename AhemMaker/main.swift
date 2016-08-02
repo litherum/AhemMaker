@@ -528,13 +528,13 @@ func nameTable() -> NSData {
         overwrite(result, location: headerLocation + currentRecord * 12 + 4, value: languageID)
         overwrite(result, location: headerLocation + currentRecord * 12 + 6, value: nameID)
 
-        var stringEncoding = NSUnicodeStringEncoding
+        var stringEncoding = NSUTF16BigEndianStringEncoding
         if platformID == unicode && platformSpecificID == defaultSemantics && languageID == 0 {
-            stringEncoding = NSUnicodeStringEncoding
+            stringEncoding = NSUTF16BigEndianStringEncoding
         } else if platformID == macintosh && platformSpecificID == roman && languageID == english {
             stringEncoding = NSMacOSRomanStringEncoding
         } else if platformID == windows && platformSpecificID == unicodeBMP && languageID == enUS {
-            stringEncoding = NSUnicodeStringEncoding
+            stringEncoding = NSUTF16BigEndianStringEncoding
         } else {
             fatalError()
         }
