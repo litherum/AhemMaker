@@ -22,6 +22,8 @@ let emptySquare: Path = [[Point(x: 125, y: 0), Point(x: 125, y: 800), Point(x: 8
 let fullSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
 let ascenderSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: 0), Point(x: 0, y: 0)]]
 let descenderSquare: Path = [[Point(x: 0, y: 0), Point(x: 1000, y: 0), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
+let horizontalStripe: Path = [[Point(x: 0, y: 600), Point(x: 1000, y: 600), Point(x: 1000, y: 400), Point(x: 0, y: 400)]]
+let verticalStripe: Path = [[Point(x: 200, y: 800), Point(x: 400, y: 800), Point(x: 400, y: -200), Point(x: 200, y: -200)]]
 let emptyPath: Path = []
 
 struct Glyph {
@@ -59,6 +61,13 @@ glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: 
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
 glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
 glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
+for _ in 257 ... 273 {
+    glyphs.append(commonGlyph)
+}
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
 
 assert(glyphs.count == glyphNames.count)
 for i in 0 ..< glyphs.count {

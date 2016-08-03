@@ -263,7 +263,28 @@ let glyphNames = [
     "uni200B",
     "uni3000",
     "afii61664",
-    "afii301"
+    "afii301",
+    "uni4E00",
+    "uni4E8C",
+    "uni4E09",
+    "uni56DB",
+    "uni4E94",
+    "uni516D",
+    "uni4E03",
+    "uni516B",
+    "uni4E5D",
+    "uni5341",
+    "uni3007",
+    "uni56D7",
+    "uni706B",
+    "uni6C34",
+    "uni6728",
+    "uni91D1",
+    "uni571F",
+    "uni03A7",
+    "uni6A2A",
+    "uni03A5",
+    "uni7EB5"
 ]
 
 let glyphMap = [
