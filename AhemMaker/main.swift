@@ -150,6 +150,14 @@ func calculateBinarySearchData(value: Int, size: Int) -> BinarySearchData {
 
 func os2Table() -> NSData {
     let result = NSMutableData()
+
+    var firstChar = UInt16.max
+    var lastChar = UInt16.min
+    for charCode in characterMap.keys {
+        firstChar = min(firstChar, UInt16(charCode))
+        lastChar = max(lastChar, UInt16(charCode))
+    }
+
     append(result, value: UInt16(3)) // Version
     append(result, value: Int16(982)) // Average character width
     append(result, value: UInt16(400)) // Weight
@@ -179,7 +187,7 @@ func os2Table() -> NSData {
     append(result, value: UInt8(0))
     append(result, value: UInt8(0))
 
-    append(result, value: UInt32(2147483823)) // FIXME: Update these
+    append(result, value: UInt32(2147483823)) // Supported unicode ranges
     append(result, value: UInt32(268443720))
     append(result, value: UInt32(0))
     append(result, value: UInt32(0))
@@ -191,15 +199,15 @@ func os2Table() -> NSData {
     append(result, value: fourCharacterTag.d)
 
     append(result, value: UInt16(0x40)) // Regular style
-    append(result, value: UInt16(0x20)) // FIXME: Update this
-    append(result, value: UInt16(0xfeff)) // FIXME: Update this
+    append(result, value: UInt16(firstChar))
+    append(result, value: UInt16(lastChar))
     append(result, value: Int16(800)) // Typographic ascender
     append(result, value: Int16(-200)) // Typographic descender
     append(result, value: Int16(0)) // Typographic line gap
     append(result, value: UInt16(800)) // Windows ascent
     append(result, value: UInt16(200)) // Windows descent
-    append(result, value: UInt32(1)) // FIXME: Update this
-    append(result, value: UInt32(0)) // FIXME: Update this
+    append(result, value: UInt32(0xFF10FC07)) // Bitmask for supported codepages (Part 1). Report all pages as supported.
+    append(result, value: UInt32(0x0000FFFF)) // Bitmask for supported codepages (Part 2). Report all pages as supported.
     append(result, value: Int16(800)) // x height
     append(result, value: Int16(800)) // Capital letter height
     append(result, value: UInt16(0)) // Default character
@@ -342,7 +350,7 @@ func headTable() -> NSData {
 
     append(result, value: UInt32(0x10000)) // Version
     append(result, value: UInt32(0x18000)) // Font revision
-    append(result, value: UInt32(0)) // FIXME: Implement this
+    append(result, value: UInt32(0)) // Checksum placeholder for entire file
     append(result, value: UInt8(0x5F)) // Magic number
     append(result, value: UInt8(0x0F)) // Magic number
     append(result, value: UInt8(0x3C)) // Magic number
@@ -352,15 +360,15 @@ func headTable() -> NSData {
     append(result, value: UInt32(0)) // Created datetime 1
     append(result, value: UInt32(3010420569)) // Created datetime 2
     append(result, value: UInt32(0)) // Modified datetime 1
-    append(result, value: UInt32(3302861603)) // Modified datetime 2 // FIXME: update this
+    append(result, value: UInt32(3302861604)) // Modified datetime 2
     append(result, value: Int16(xMin))
     append(result, value: Int16(yMin))
     append(result, value: Int16(xMax))
     append(result, value: Int16(yMax))
     append(result, value: UInt16(0)) // Style: normal
     append(result, value: UInt16(3)) // Smallest readable size
-    append(result, value: Int16(2)) // Only LTR & neutrals (FIXME: update this)
-    append(result, value: Int16(0)) // 2-byte offsets in loca table // FIXME: Investigate this
+    append(result, value: Int16(0)) // Mixed directional glyphs
+    append(result, value: Int16(0)) // 2-byte offsets in loca table
     append(result, value: Int16(0))
     return result
 }
@@ -779,6 +787,10 @@ struct FourCharacterTag {
     }
 }
 
+func ==(left: FourCharacterTag, right: FourCharacterTag) -> Bool {
+    return left.a == right.a && left.b == right.b && left.c == right.c && left.d == right.d
+}
+
 func calculateChecksum(data: NSData, location: Int, endLocation: Int) -> UInt32 {
     assert(location % 4 == 0)
     assert(endLocation % 4 == 0)
@@ -831,9 +843,16 @@ for _ in tables {
     append(result, value: UInt32(0))
 }
 
+var headTableLocation = -1
 for i in 0 ..< tables.count {
+    if tableCodes[i] == FourCharacterTag(string: "head") {
+        headTableLocation = result.length
+    }
     appendTable(result, table: tables[i], headerLocation: headerLocation + 4 * 4 * i, tag: tableCodes[i])
 }
+
+assert(headTableLocation != -1)
+overwrite(result, location: headTableLocation + 8, value: 0xB1B0AFBA &- calculateChecksum(result, location: 0, endLocation: result.length))
 
 do {
     try result.writeToFile("/Users/litherum/tmp/output.ttf", options: .DataWritingAtomic)
