@@ -652,6 +652,11 @@ func generateGlyphData() -> [NSData] {
     for glyph in glyphs {
         let r = NSMutableData()
 
+        if glyph.path.count == 0 || (glyph.path.count == 1 && glyph.path[0].count == 0) {
+            result.append(r)
+            continue
+        }
+
         var xMin = Int16.max
         var yMin = Int16.max
         var xMax = Int16.min
@@ -761,6 +766,10 @@ func generateGlyphData() -> [NSData] {
         r.appendData(flagData)
         r.appendData(xCoordinates)
         r.appendData(yCoordinates)
+
+        assert(flagData.length > 0)
+        assert(xCoordinates.length > 0)
+        assert(yCoordinates.length > 0)
 
         result.append(r)
     }
