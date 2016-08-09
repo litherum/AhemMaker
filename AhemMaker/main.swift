@@ -37,8 +37,10 @@ struct Glyph {
 let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare, name: "")
 
 var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare, name: ""),
-    Glyph(advanceWidth: 0, leftSideBearing: 0, path: fullSquare, name: "")]
-for _ in 2 ... 81 {
+    Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""),
+    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""),
+    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "")]
+for _ in 4 ... 81 {
     glyphs.append(commonGlyph)
 }
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare, name: ""))
@@ -46,7 +48,11 @@ for _ in 83 ... 99 {
     glyphs.append(commonGlyph)
 }
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare, name: ""))
-for _ in 101 ... 244 {
+for _ in 101 ... 152 {
+    glyphs.append(commonGlyph)
+}
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
+for _ in 154 ... 244 {
     glyphs.append(commonGlyph)
 }
 glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
