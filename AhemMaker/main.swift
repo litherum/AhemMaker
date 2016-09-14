@@ -82,27 +82,27 @@ for i in 0 ..< glyphs.count {
     glyphs[i].name = glyphNames[i]
 }
 
-func append(data: NSMutableData, value: UInt8) {
+func append(_ data: NSMutableData, value: UInt8) {
     let a = [value]
-    data.appendBytes(a, length: a.count)
+    data.append(a, length: a.count)
 }
 
-func append(data: NSMutableData, value: Int8) {
+func append(_ data: NSMutableData, value: Int8) {
     append(data, value: cast8BitInt(value))
 }
 
-func append(data: NSMutableData, value: UInt16) {
+func append(_ data: NSMutableData, value: UInt16) {
     let a = UInt8(value >> 8)
     let b = UInt8(value & 0xFF)
     append(data, value: a)
     append(data, value: b)
 }
 
-func append(data: NSMutableData, value: Int16) {
+func append(_ data: NSMutableData, value: Int16) {
     append(data, value: cast16BitInt(value))
 }
 
-func append(data: NSMutableData, value: UInt32) {
+func append(_ data: NSMutableData, value: UInt32) {
     let a = UInt8(value >> 24)
     let b = UInt8((value >> 16) & 0xFF)
     let c = UInt8((value >> 8) & 0xFF)
@@ -113,28 +113,22 @@ func append(data: NSMutableData, value: UInt32) {
     append(data, value: d)
 }
 
-func append(data: NSMutableData, value: Int32) {
+func append(_ data: NSMutableData, value: Int32) {
     append(data, value: cast32BitInt(value))
 }
 
-func overwrite(data: NSMutableData, location: Int, value: UInt32) {
+func overwrite(_ data: NSMutableData, location: Int, value: UInt32) {
     let a = UInt8(value >> 24)
     let b = UInt8((value >> 16) & 0xFF)
     let c = UInt8((value >> 8) & 0xFF)
     let d = UInt8(value & 0xFF)
-    let bytes = UnsafeMutablePointer<UInt8>(data.mutableBytes)
-    bytes[location] = a
-    bytes[location + 1] = b
-    bytes[location + 2] = c
-    bytes[location + 3] = d
+    data.replaceBytes(in: NSRange(location ..< location + 4), withBytes: [a, b, c, d])
 }
 
-func overwrite(data: NSMutableData, location: Int, value: UInt16) {
+func overwrite(_ data: NSMutableData, location: Int, value: UInt16) {
     let a = UInt8(value >> 8)
     let b = UInt8(value & 0xFF)
-    let bytes = UnsafeMutablePointer<UInt8>(data.mutableBytes)
-    bytes[location] = a
-    bytes[location + 1] = b
+    data.replaceBytes(in: NSRange(location ..< location + 2), withBytes: [a, b])
 }
 
 struct BinarySearchData {
@@ -143,7 +137,7 @@ struct BinarySearchData {
     let rangeShift: UInt16
 }
 
-func calculateBinarySearchData(value: Int, size: Int) -> BinarySearchData {
+func calculateBinarySearchData(_ value: Int, size: Int) -> BinarySearchData {
     var pot = 1
     var log = 0
     while pot <= value {
@@ -156,7 +150,7 @@ func calculateBinarySearchData(value: Int, size: Int) -> BinarySearchData {
     return BinarySearchData(searchRange: searchRange, entrySelector: UInt16(log), rangeShift: UInt16(value * size) - searchRange)
 }
 
-func os2Table() -> NSData {
+func os2Table() -> Data {
     let result = NSMutableData()
 
     var firstChar = UInt16.max
@@ -221,7 +215,7 @@ func os2Table() -> NSData {
     append(result, value: UInt16(0)) // Default character
     append(result, value: UInt16(32)) // Break character
     append(result, value: UInt16(0)) // Maximum context necessary
-    return result
+    return result as Data
 }
 
 struct Segment {
@@ -264,7 +258,7 @@ func generateSegments() -> [Segment] {
     return result
 }
 
-func cmapTable() -> NSData {
+func cmapTable() -> Data {
     let result = NSMutableData()
 
     let segments = generateSegments()
@@ -308,10 +302,10 @@ func cmapTable() -> NSData {
     }
 
     assert(result.length - subtableLocation == subtableLength)
-    return result
+    return result as Data
 }
 
-func gaspTable() -> NSData {
+func gaspTable() -> Data {
     let result = NSMutableData()
     append(result, value: UInt16(0)) // Version
     append(result, value: UInt16(3)) // Number of records below
@@ -324,21 +318,21 @@ func gaspTable() -> NSData {
 
     append(result, value: UInt16(0xFFFF)) // Upper size limit
     append(result, value: UInt16(3)) // Gridfit and greyscale
-    return result
+    return result as Data
 }
 
-func glyfTable() -> NSData {
+func glyfTable() -> Data {
     let result = NSMutableData()
     for specificGlyphData in glyphData {
-        result.appendData(specificGlyphData)
+        result.append(specificGlyphData)
         if result.length % 2 == 1 {
             append(result, value: UInt8(0))
         }
     }
-    return result
+    return result as Data
 }
 
-func headTable() -> NSData {
+func headTable() -> Data {
     let result = NSMutableData()
 
     var xMin = Int16.max
@@ -378,10 +372,10 @@ func headTable() -> NSData {
     append(result, value: Int16(0)) // Mixed directional glyphs
     append(result, value: Int16(0)) // 2-byte offsets in loca table
     append(result, value: Int16(0))
-    return result
+    return result as Data
 }
 
-func hheaTable() -> NSData {
+func hheaTable() -> Data {
     let result = NSMutableData()
 
     var advanceWidthMax = UInt16.min
@@ -421,25 +415,25 @@ func hheaTable() -> NSData {
     append(result, value: UInt32(0)) // Reserved
     append(result, value: Int16(0))
     append(result, value: UInt16(glyphs.count))
-    return result
+    return result as Data
 }
 
-func hmtxTable() -> NSData {
+func hmtxTable() -> Data {
     let result = NSMutableData()
     for glyph in glyphs {
         append(result, value: UInt16(glyph.advanceWidth))
         append(result, value: Int16(glyph.leftSideBearing))
     }
-    return result
+    return result as Data
 }
 
-func locaTable() -> NSData {
+func locaTable() -> Data {
     let result = NSMutableData()
     var offsets = [Int]()
     var offset = 0
     for individualGlyphData in glyphData {
         offsets.append(offset)
-        offset = offset + individualGlyphData.length
+        offset = offset + individualGlyphData.count
         if offset % 2 == 1 {
             offset = offset + 1
         }
@@ -449,10 +443,10 @@ func locaTable() -> NSData {
     for offset in offsets {
         append(result, value: UInt16(offset) / 2)
     }
-    return result
+    return result as Data
 }
 
-func maxpTable() -> NSData {
+func maxpTable() -> Data {
     let result = NSMutableData()
 
     var maxPoints = 0
@@ -481,10 +475,10 @@ func maxpTable() -> NSData {
     append(result, value: UInt16(0)) // Maximum size of instructions
     append(result, value: UInt16(0)) // Maximum component elements
     append(result, value: UInt16(0)) // Maximum component depth
-    return result
+    return result as Data
 }
 
-func nameTable() -> NSData {
+func nameTable() -> Data {
     let result = NSMutableData()
 
     let copyright = "The Ahem font belongs to the public domain. In jurisdictions that do not recognize public domain ownership of these files, the following Creative Commons Zero declaration applies: http://labs.creativecommons.org/licenses/zero-waive/1.0/us/legalcode"
@@ -552,24 +546,27 @@ func nameTable() -> NSData {
         overwrite(result, location: headerLocation + currentRecord * 12 + 4, value: languageID)
         overwrite(result, location: headerLocation + currentRecord * 12 + 6, value: nameID)
 
-        var stringEncoding = NSUTF16BigEndianStringEncoding
+        var stringEncoding = String.Encoding.utf16BigEndian
         if platformID == unicode && platformSpecificID == defaultSemantics && languageID == 0 {
-            stringEncoding = NSUTF16BigEndianStringEncoding
+            stringEncoding = String.Encoding.utf16BigEndian
         } else if platformID == macintosh && platformSpecificID == roman && languageID == english {
-            stringEncoding = NSMacOSRomanStringEncoding
+            stringEncoding = String.Encoding.macOSRoman
         } else if platformID == windows && platformSpecificID == unicodeBMP && languageID == enUS {
-            stringEncoding = NSUTF16BigEndianStringEncoding
+            stringEncoding = String.Encoding.utf16BigEndian
         } else {
             fatalError()
         }
-        let length = string.lengthOfBytesUsingEncoding(stringEncoding)
-        var bytes = [UInt8](count: length, repeatedValue: 0)
-        string.getBytes(&bytes, maxLength: length, usedLength: nil, encoding: stringEncoding, options: NSStringEncodingConversionOptions(), range: (string.characters.startIndex ..< string.characters.endIndex), remainingRange: nil)
+        let length = string.lengthOfBytes(using: stringEncoding)
+        var bytes = [UInt8](repeating: 0, count: length)
+        var usedLength = 0
+        var remaining = string.startIndex ..< string.endIndex
+        let success = string.getBytes(&bytes, maxLength: length, usedLength: &usedLength, encoding: stringEncoding, options: NSString.EncodingConversionOptions(), range: (string.characters.startIndex ..< string.characters.endIndex), remaining: &remaining)
+        assert(success)
 
         overwrite(result, location: headerLocation + currentRecord * 12 + 8, value: UInt16(length))
         overwrite(result, location: headerLocation + currentRecord * 12 + 10, value: UInt16(result.length - offsetToStringData))
 
-        result.appendBytes(bytes, length: bytes.count)
+        result.append(bytes, length: bytes.count)
 
         currentRecord = currentRecord + 1
     }
@@ -613,10 +610,10 @@ func nameTable() -> NSData {
 
     assert(currentRecord == numberOfRecords)
 
-    return result
+    return result as Data
 }
 
-func postTable() -> NSData {
+func postTable() -> Data {
     let result = NSMutableData()
     append(result, value: UInt32(0x20000)) // Format
     append(result, value: UInt32(0)) // Italic angle
@@ -651,16 +648,16 @@ func postTable() -> NSData {
         }
     }
 
-    return result
+    return result as Data
 }
 
-func generateGlyphData() -> [NSData] {
-    var result = [NSData]()
+func generateGlyphData() -> [Data] {
+    var result = [Data]()
     for glyph in glyphs {
         let r = NSMutableData()
 
         if glyph.path.count == 0 || (glyph.path.count == 1 && glyph.path[0].count == 0) {
-            result.append(r)
+            result.append(r as Data)
             continue
         }
 
@@ -770,15 +767,15 @@ func generateGlyphData() -> [NSData] {
             flagIndex = run
         }
 
-        r.appendData(flagData)
-        r.appendData(xCoordinates)
-        r.appendData(yCoordinates)
+        r.append(flagData as Data)
+        r.append(xCoordinates as Data)
+        r.append(yCoordinates as Data)
 
         assert(flagData.length > 0)
         assert(xCoordinates.length > 0)
         assert(yCoordinates.length > 0)
 
-        result.append(r)
+        result.append(r as Data)
     }
     return result
 }
@@ -794,11 +791,11 @@ struct FourCharacterTag {
         assert(string.utf8.count == 4)
         var i = string.utf8.startIndex
         a = string.utf8[i]
-        i = i.successor()
+        i = string.utf8.index(after: i)
         b = string.utf8[i]
-        i = i.successor()
+        i = string.utf8.index(after: i)
         c = string.utf8[i]
-        i = i.successor()
+        i = string.utf8.index(after: i)
         d = string.utf8[i]
     }
 }
@@ -807,11 +804,11 @@ func ==(left: FourCharacterTag, right: FourCharacterTag) -> Bool {
     return left.a == right.a && left.b == right.b && left.c == right.c && left.d == right.d
 }
 
-func calculateChecksum(data: NSData, location: Int, endLocation: Int) -> UInt32 {
+func calculateChecksum(_ data: Data, location: Int, endLocation: Int) -> UInt32 {
     assert(location % 4 == 0)
     assert(endLocation % 4 == 0)
     var result = UInt32(0)
-    let bytes = UnsafePointer<UInt8>(data.bytes)
+    let bytes = (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count)
     for i in (location ..< endLocation) where i % 4 == 0 {
         let value = (UInt32(bytes[i]) << 24) | (UInt32(bytes[i + 1]) << 16) | (UInt32(bytes[i + 2]) << 8) | UInt32(bytes[i + 3])
         result = result &+ value
@@ -819,20 +816,16 @@ func calculateChecksum(data: NSData, location: Int, endLocation: Int) -> UInt32 
     return result
 }
 
-func appendTable(result: NSMutableData, table: NSData, headerLocation: Int, tag: FourCharacterTag) {
+func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag: FourCharacterTag) {
     let currentSize = result.length
-    result.appendData(table)
+    result.append(table)
     let newSize = result.length
     while result.length % 4 != 0 {
         let zero = [UInt8(0)]
-        result.appendBytes(zero, length: 1)
+        result.append(zero, length: 1)
     }
-    let bytes = UnsafeMutablePointer<UInt8>(result.mutableBytes)
-    bytes[headerLocation] = tag.a
-    bytes[headerLocation + 1] = tag.b
-    bytes[headerLocation + 2] = tag.c
-    bytes[headerLocation + 3] = tag.d
-    overwrite(result, location: headerLocation + 4, value: calculateChecksum(result, location: currentSize, endLocation: result.length))
+    result.replaceBytes(in: NSRange(headerLocation ..< headerLocation + 4), withBytes: [tag.a, tag.b, tag.c, tag.d])
+    overwrite(result, location: headerLocation + 4, value: calculateChecksum(result as Data, location: currentSize, endLocation: result.length))
     overwrite(result, location: headerLocation + 8, value: UInt32(currentSize))
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
@@ -868,10 +861,10 @@ for i in 0 ..< tables.count {
 }
 
 assert(headTableLocation != -1)
-overwrite(result, location: headTableLocation + 8, value: 0xB1B0AFBA &- calculateChecksum(result, location: 0, endLocation: result.length))
+overwrite(result, location: headTableLocation + 8, value: 0xB1B0AFBA &- calculateChecksum(result as Data, location: 0, endLocation: result.length))
 
 do {
-    try result.writeToFile("/Users/litherum/tmp/output.ttf", options: .DataWritingAtomic)
+    try result.write(toFile: "/Users/litherum/tmp/output.ttf", options: .atomic)
 } catch {
     fatalError()
 }
