@@ -863,8 +863,13 @@ for i in 0 ..< tables.count {
 assert(headTableLocation != -1)
 overwrite(result, location: headTableLocation + 8, value: 0xB1B0AFBA &- calculateChecksum(result as Data, location: 0, endLocation: result.length))
 
+if CommandLine.arguments.count != 2 {
+    print("Need a command line argument specifying the location to write the output file!")
+    exit(-1)
+}
+
 do {
-    try result.write(toFile: "/Users/litherum/tmp/outputbaselineshift.ttf", options: .atomic)
+    try result.write(toFile: CommandLine.arguments[1], options: .atomic)
 } catch {
     fatalError()
 }
