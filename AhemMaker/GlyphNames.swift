@@ -284,7 +284,9 @@ let glyphNames = [
     "uni03A7",
     "uni6A2A",
     "uni03A5",
-    "uni7EB5"
+    "uni7EB5",
+    "uni2000B",
+    "uni2000C"
 ]
 
 let glyphMap = [

@@ -76,6 +76,8 @@ glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStri
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
 
 assert(glyphs.count == glyphNames.count)
 for i in 0 ..< glyphs.count {
@@ -153,13 +155,6 @@ func calculateBinarySearchData(_ value: Int, size: Int) -> BinarySearchData {
 func os2Table() -> Data {
     let result = NSMutableData()
 
-    var firstChar = UInt16.max
-    var lastChar = UInt16.min
-    for charCode in characterMap.keys {
-        firstChar = min(firstChar, UInt16(charCode))
-        lastChar = max(lastChar, UInt16(charCode))
-    }
-
     append(result, value: UInt16(3)) // Version
     append(result, value: Int16(982)) // Average character width
     append(result, value: UInt16(400)) // Weight
@@ -201,8 +196,8 @@ func os2Table() -> Data {
     append(result, value: fourCharacterTag.d)
 
     append(result, value: UInt16(0x40)) // Regular style
-    append(result, value: UInt16(firstChar))
-    append(result, value: UInt16(lastChar))
+    append(result, value: UInt16(0x20)) // First character index
+    append(result, value: UInt16(0xFFFF)) // Last character index
     append(result, value: Int16(800)) // Typographic ascender
     append(result, value: Int16(-200)) // Typographic descender
     append(result, value: Int16(0)) // Typographic line gap
@@ -219,10 +214,9 @@ func os2Table() -> Data {
 }
 
 struct Segment {
-    let startCode: UInt32
-    let endCode: UInt32
-    let idDelta: UInt16
-    let idRangeOffset: UInt16
+    let startCharCode: UInt32
+    let endCharCode: UInt32
+    let startGlyphID: UInt32
 }
 
 func generateSegments() -> [Segment] {
@@ -230,23 +224,21 @@ func generateSegments() -> [Segment] {
     var result = [Segment]()
     var minCodePoint: Int?
     var minGlyph: Int?
-    for codePoint in 1 ..< 0xFFFF {
+    for codePoint in 1 ..< 0x110000 {
         if let glyph = characterMap[codePoint] {
             if minCodePoint == nil {
                 minCodePoint = codePoint
                 minGlyph = glyph
             } else {
-                let delta = minGlyph! - minCodePoint!
-                let probe = delta + codePoint
+                let probe = minGlyph! + (codePoint - minCodePoint!)
                 if probe != glyph {
-                    result.append(Segment(startCode: UInt32(minCodePoint!), endCode: UInt32(codePoint) - 1, idDelta: cast16BitInt(Int16(delta)), idRangeOffset: 0))
+                    result.append(Segment(startCharCode: UInt32(minCodePoint!), endCharCode: UInt32(codePoint) - 1, startGlyphID: UInt32(minGlyph!)))
                     minCodePoint = codePoint
                     minGlyph = glyph
                 }
             }
         } else if minCodePoint != nil {
-            let delta = UInt16(minGlyph!) &- UInt16(minCodePoint!)
-            result.append(Segment(startCode: UInt32(minCodePoint!), endCode: UInt32(codePoint) - 1, idDelta: delta, idRangeOffset: 0))
+            result.append(Segment(startCharCode: UInt32(minCodePoint!), endCharCode: UInt32(codePoint) - 1, startGlyphID: UInt32(minGlyph!)))
             minCodePoint = nil
             minGlyph = nil
         }
@@ -254,7 +246,6 @@ func generateSegments() -> [Segment] {
 
     // FIXME: handle the last few code points correctly
     assert(minCodePoint == nil)
-    result.append(Segment(startCode: 0xFFFF, endCode: 0xFFFF, idDelta: 1, idRangeOffset: 0))
     return result
 }
 
@@ -262,43 +253,31 @@ func cmapTable() -> Data {
     let result = NSMutableData()
 
     let segments = generateSegments()
-    let binarySearchData = calculateBinarySearchData(segments.count, size: 2)
     let subtableLocation = 20
-    let subtableLength = 16 + 4 * 2 * segments.count
+    let subtableLength = 16 + 3 * 4 * segments.count
 
     append(result, value: UInt16(0)) // Version
     append(result, value: UInt16(2)) // Number of subtables
 
     append(result, value: UInt16(0)) // Unicode
-    append(result, value: UInt16(3)) // Version 2.0 or later semantics (BMP only)
+    append(result, value: UInt16(4)) // Version 2.0 or later semantics (non-BMP characters allowed)
     append(result, value: UInt32(subtableLocation)) // Offset
 
     append(result, value: UInt16(3)) // Windows
-    append(result, value: UInt16(1)) // Unicode BMP-only (UCS-2)
+    append(result, value: UInt16(10)) // Unicode BMP-only (UCS-2)
     append(result, value: UInt32(subtableLocation)) // Offset
 
     assert(result.length == subtableLocation)
 
-    append(result, value: UInt16(4)) // Format
-    append(result, value: UInt16(subtableLength)) // Length in bytes of the subtable
-    append(result, value: UInt16(0)) // Language (Unused)
-    append(result, value: UInt16(segments.count * 2))
-    append(result, value: UInt16(binarySearchData.searchRange))
-    append(result, value: UInt16(binarySearchData.entrySelector))
-    append(result, value: UInt16(binarySearchData.rangeShift))
+    append(result, value: UInt16(12)) // Format
+    append(result, value: UInt16(0)) // Reserved; set to 0
+    append(result, value: UInt32(subtableLength)) // Byte length of this subtable
+    append(result, value: UInt32(0)) // Language (Unused)
+    append(result, value: UInt32(segments.count))
     for segment in segments {
-        append(result, value: UInt16(segment.endCode))
-    }
-    append(result, value: UInt16(0))
-    for segment in segments {
-        append(result, value: UInt16(segment.startCode))
-    }
-    for segment in segments {
-        append(result, value: UInt16(segment.idDelta))
-    }
-    for segment in segments {
-        assert(segment.idRangeOffset == 0)
-        append(result, value: UInt16(segment.idRangeOffset))
+        append(result, value: UInt32(segment.startCharCode))
+        append(result, value: UInt32(segment.endCharCode))
+        append(result, value: UInt32(segment.startGlyphID))
     }
 
     assert(result.length - subtableLocation == subtableLength)
