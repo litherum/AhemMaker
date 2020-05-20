@@ -1453,11 +1453,7 @@ func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag:
     overwrite(result, location: headerLocation + 12, value: UInt32(newSize - currentSize))
 }
 
-func appendFont1() {
-    let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
-    let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
-    assert(tables.count == tableCodes.count)
-
+func appendFont1TableDirectory(_ result: NSMutableData, tables: [Data]) -> Int {
     append(result, value: UInt32(1 << 16))
     append(result, value: UInt16(tables.count))
     let binarySearchData = calculateBinarySearchData(tables.count, size: 16)
@@ -1472,7 +1468,10 @@ func appendFont1() {
         append(result, value: UInt32(0))
         append(result, value: UInt32(0))
     }
+    return headerLocation
+}
 
+func appendFont1Data(_ result: NSMutableData, tables: [Data], tableCodes: [FourCharacterTag], headerLocation: Int) {
     var headTableLocation = -1
     for i in 0 ..< tables.count {
         if tableCodes[i] == FourCharacterTag(string: "head") {
@@ -1485,11 +1484,7 @@ func appendFont1() {
     overwrite(result, location: headTableLocation + 8, value: 0xB1B0AFBA &- calculateChecksum(result as Data, location: 0, endLocation: result.length))
 }
 
-func appendFont2() {
-    let tables = [os2Table2(), cmapTable2(), gaspTable(), glyfTable(), headTable2(), hheaTable2(), hmtxTable2(), locaTable(), maxpTable2(), nameTable2(), postTable2()]
-    let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
-    assert(tables.count == tableCodes.count)
-
+func appendFont2TableDirectory(_ result: NSMutableData, tables: [Data]) -> Int {
     append(result, value: UInt32(1 << 16))
     append(result, value: UInt16(tables.count))
     let binarySearchData = calculateBinarySearchData(tables.count, size: 16)
@@ -1504,7 +1499,10 @@ func appendFont2() {
         append(result, value: UInt32(0))
         append(result, value: UInt32(0))
     }
+    return headerLocation
+}
 
+func appendFont2Data(_ result: NSMutableData, tables: [Data], tableCodes: [FourCharacterTag], headerLocation: Int) {
     var headTableLocation = -1
     for i in 0 ..< tables.count {
         if tableCodes[i] == FourCharacterTag(string: "head") {
@@ -1534,11 +1532,20 @@ let offsets = result.length
 append(result, value: UInt32(0)) // Offset of first font
 append(result, value: UInt32(0)) // Offset of second font
 
-overwrite(result, location: offsets + 0, value: UInt32(result.length))
-appendFont1()
+let font1Tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
+let font1TableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+assert(font1Tables.count == font1TableCodes.count)
 glyphData = generateGlyphData2()
+let font2Tables = [os2Table2(), cmapTable2(), gaspTable(), glyfTable(), headTable2(), hheaTable2(), hmtxTable2(), locaTable(), maxpTable2(), nameTable2(), postTable2()]
+let font2TableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+assert(font2Tables.count == font2TableCodes.count)
+
+overwrite(result, location: offsets + 0, value: UInt32(result.length))
+let table1HeaderLocation = appendFont1TableDirectory(result, tables: font1Tables)
 overwrite(result, location: offsets + 4, value: UInt32(result.length))
-appendFont2()
+let table2HeaderLocation = appendFont2TableDirectory(result, tables: font2Tables)
+appendFont1Data(result, tables: font1Tables, tableCodes: font1TableCodes, headerLocation: table1HeaderLocation)
+appendFont2Data(result, tables: font2Tables, tableCodes: font2TableCodes, headerLocation: table2HeaderLocation)
 
 if CommandLine.arguments.count != 2 {
     print("Need a command line argument specifying the location to write the output file!")
