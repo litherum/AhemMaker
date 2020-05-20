@@ -15,7 +15,7 @@ struct FourCharacterTag {
     let d: UInt8
 
     init(string: String) {
-        assert(string.characters.count == 4)
+        assert(string.count == 4)
         assert(string.utf8.count == 4)
         var i = string.utf8.startIndex
         a = string.utf8[i]
@@ -899,7 +899,7 @@ func nameTable() -> Data {
         var bytes = [UInt8](repeating: 0, count: length)
         var usedLength = 0
         var remaining = string.startIndex ..< string.endIndex
-        let success = string.getBytes(&bytes, maxLength: length, usedLength: &usedLength, encoding: stringEncoding, options: NSString.EncodingConversionOptions(), range: (string.characters.startIndex ..< string.characters.endIndex), remaining: &remaining)
+        let success = string.getBytes(&bytes, maxLength: length, usedLength: &usedLength, encoding: stringEncoding, options: NSString.EncodingConversionOptions(), range: (string.startIndex ..< string.endIndex), remaining: &remaining)
         assert(success)
 
         overwrite(result, location: headerLocation + currentRecord * 12 + 8, value: UInt16(length))
@@ -1034,7 +1034,7 @@ func nameTable2() -> Data {
         var bytes = [UInt8](repeating: 0, count: length)
         var usedLength = 0
         var remaining = string.startIndex ..< string.endIndex
-        let success = string.getBytes(&bytes, maxLength: length, usedLength: &usedLength, encoding: stringEncoding, options: NSString.EncodingConversionOptions(), range: (string.characters.startIndex ..< string.characters.endIndex), remaining: &remaining)
+        let success = string.getBytes(&bytes, maxLength: length, usedLength: &usedLength, encoding: stringEncoding, options: NSString.EncodingConversionOptions(), range: (string.startIndex ..< string.endIndex), remaining: &remaining)
         assert(success)
 
         overwrite(result, location: headerLocation + currentRecord * 12 + 8, value: UInt16(length))
