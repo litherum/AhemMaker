@@ -28,54 +28,64 @@ let horizontalStripe: Path = [[Point(x: 0, y: 600), Point(x: 1000, y: 600), Poin
 let verticalStripe: Path = [[Point(x: 200, y: 800), Point(x: 400, y: 800), Point(x: 400, y: -200), Point(x: 200, y: -200)]]
 let emptyPath: Path = []
 
+struct Layer {
+    let glyphID: UInt16
+    let paletteIndex: UInt16
+}
+
 struct Glyph {
     // glyph name
     let advanceWidth: UInt16
     let leftSideBearing: Int16
     let path: Path
     var name: String = ""
+    var layers: [Layer]? = nil
 }
 
-let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare, name: "")
+let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare)
 
-var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare, name: ""),
-    Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""),
-    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""),
-    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "")]
-for _ in 4 ... 81 {
+var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare),
+    Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath),
+    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath),
+    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath)]
+for _ in 4 ... 34 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, layers: [Layer(glyphID: 36, paletteIndex: 0), Layer(glyphID: 277, paletteIndex: 1)]))
+for _ in 36 ... 81 {
+    glyphs.append(commonGlyph)
+}
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare))
 for _ in 83 ... 99 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare))
 for _ in 101 ... 152 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
 for _ in 154 ... 244 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
 for _ in 257 ... 273 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe))
 
 assert(glyphs.count == glyphNames.count)
 for i in 0 ..< glyphs.count {
@@ -651,6 +661,63 @@ func postTable() -> Data {
     return result as Data
 }
 
+func colrTable() -> Data {
+    let result = NSMutableData()
+    let numberColorGlyphs = glyphs.filter({$0.layers != nil}).count
+
+    append(result, value: UInt16(0)) // Version
+    append(result, value: UInt16(numberColorGlyphs)) // Number of base glyph records
+    append(result, value: UInt32(14)) // Offset to base glyph records
+    append(result, value: UInt32(14 + 6 * numberColorGlyphs)) // Offset to layer records
+    append(result, value: UInt16(0)) // Number of layer records
+
+    var layerIndex = 0
+    for i in 0 ..< glyphs.count {
+        let glyph = glyphs[i]
+        guard let layers = glyph.layers else {
+            continue
+        }
+        append(result, value: UInt16(i)) // Glyph ID
+        append(result, value: UInt16(layerIndex)) // Index to the layer record
+        append(result, value: UInt16(layers.count)) // Number of color layers
+        layerIndex += layers.count
+    }
+    overwrite(result, location: 12, value: UInt16(layerIndex))
+
+    for glyph in glyphs {
+        guard let layers = glyph.layers else {
+            continue
+        }
+        for layer in layers {
+            append(result, value: UInt16(layer.glyphID)) // Glyph ID
+            append(result, value: UInt16(layer.paletteIndex)) // Palette index
+        }
+    }
+
+    return result as Data
+}
+
+func cpalTable() -> Data {
+    let result = NSMutableData()
+    append(result, value: UInt16(0)) // Version
+    append(result, value: UInt16(2)) // Number of palette entries in each palette
+    append(result, value: UInt16(1)) // Number of palettes
+    append(result, value: UInt16(2)) // Number of color records
+    append(result, value: UInt32(14)) // Offset to first color record
+    append(result, value: UInt16(0)) // Index of the only palette's first color record
+
+    append(result, value: UInt8(255)) // Blue
+    append(result, value: UInt8(0)) // Green
+    append(result, value: UInt8(255)) // Red
+    append(result, value: UInt8(255)) // Alpha
+
+    append(result, value: UInt8(255)) // Blue
+    append(result, value: UInt8(255)) // Green
+    append(result, value: UInt8(0)) // Red
+    append(result, value: UInt8(255)) // Alpha
+    return result as Data
+}
+
 func generateGlyphData() -> [Data] {
     var result = [Data]()
     for glyph in glyphs {
@@ -832,8 +899,8 @@ func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag:
 
 let glyphData = generateGlyphData()
 
-let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let tables = [colrTable(), cpalTable(), os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
+let tableCodes = [FourCharacterTag(string: "COLR"), FourCharacterTag(string: "CPAL"), FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
