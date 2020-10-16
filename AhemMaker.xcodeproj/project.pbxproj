@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1CAF57392539519E0017B472 /* image1.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1CAF5738253951740017B472 /* image1.jpg */; };
+		1CAF573A2539519E0017B472 /* image2.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1CAF5737253951740017B472 /* image2.jpg */; };
 		C20D3F821D4E92470060BEA2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F811D4E92470060BEA2 /* main.swift */; };
 		C20D3F8B1D4E967C0060BEA2 /* Utils.c in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F891D4E967C0060BEA2 /* Utils.c */; };
 		C20D3FA01D4EE2CC0060BEA2 /* GlyphNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F9F1D4EE2CC0060BEA2 /* GlyphNames.swift */; };
@@ -16,16 +18,20 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		C20D3F7C1D4E92470060BEA2 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				1CAF57392539519E0017B472 /* image1.jpg in CopyFiles */,
+				1CAF573A2539519E0017B472 /* image2.jpg in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1CAF5737253951740017B472 /* image2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = image2.jpg; sourceTree = "<group>"; };
+		1CAF5738253951740017B472 /* image1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = image1.jpg; sourceTree = "<group>"; };
 		C20D3F7E1D4E92470060BEA2 /* AhemMaker */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AhemMaker; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20D3F811D4E92470060BEA2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		C20D3F881D4E967C0060BEA2 /* AhemMaker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AhemMaker-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -71,6 +77,8 @@
 				C20D3F881D4E967C0060BEA2 /* AhemMaker-Bridging-Header.h */,
 				C20D3F9F1D4EE2CC0060BEA2 /* GlyphNames.swift */,
 				C20D3FA11D4FE6BA0060BEA2 /* CharacterMap.swift */,
+				1CAF5738253951740017B472 /* image1.jpg */,
+				1CAF5737253951740017B472 /* image2.jpg */,
 			);
 			path = AhemMaker;
 			sourceTree = "<group>";

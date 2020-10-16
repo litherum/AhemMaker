@@ -33,49 +33,55 @@ struct Glyph {
     let advanceWidth: UInt16
     let leftSideBearing: Int16
     let path: Path
-    var name: String = ""
+    var name = ""
+    var imageURL: URL? = nil
 }
 
-let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare, name: "")
+let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare)
 
-var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare, name: ""),
-    Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""),
-    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""),
-    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "")]
-for _ in 4 ... 81 {
+var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare),
+    Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath),
+    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath),
+    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath)]
+for _ in 4 ... 34 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "", imageURL: URL(fileURLWithPath: "image1.jpg")))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "", imageURL: URL(fileURLWithPath: "image2.jpg")))
+for _ in 37 ... 81 {
+    glyphs.append(commonGlyph)
+}
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare))
 for _ in 83 ... 99 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare))
 for _ in 101 ... 152 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
 for _ in 154 ... 244 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
+glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath))
 for _ in 257 ... 273 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe))
 
 assert(glyphs.count == glyphNames.count)
 for i in 0 ..< glyphs.count {
@@ -651,6 +657,37 @@ func postTable() -> Data {
     return result as Data
 }
 
+func sbixTable() -> Data {
+    let result = NSMutableData()
+    append(result, value: UInt16(1)) // Version
+    append(result, value: UInt16(1)) // Flags
+    append(result, value: UInt32(1)) // Number of strikes
+    append(result, value: UInt32(12)) // Strike offset
+
+    append(result, value: UInt16(200)) // Pixels per em
+    append(result, value: UInt16(72)) // Resolution
+
+    let tempData = NSMutableData()
+    for glyph in glyphs {
+        append(result, value: UInt32(2 + 2 + 4 * (glyphs.count + 1) + tempData.count)) // Offset to glyph data
+        if let imageURL = glyph.imageURL {
+            append(tempData, value: UInt16(0)) // Origin offset x
+            append(tempData, value: UInt16(0)) // Origin offset y
+            append(tempData, value: UInt8(0x6A)) // 'j'
+            append(tempData, value: UInt8(0x70)) // 'p'
+            append(tempData, value: UInt8(0x67)) // 'g'
+            append(tempData, value: UInt8(0x20)) // ' '
+            let imageData = try! Data(contentsOf: imageURL)
+            tempData.append(imageData)
+        }
+    }
+    append(result, value: UInt32(2 + 2 + 4 * (glyphs.count + 1) + tempData.count)) // Offset to glyph data
+
+    result.append(tempData as Data)
+    
+    return result as Data
+}
+
 func generateGlyphData() -> [Data] {
     var result = [Data]()
     for glyph in glyphs {
@@ -832,8 +869,8 @@ func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag:
 
 let glyphData = generateGlyphData()
 
-let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable(), sbixTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post"), FourCharacterTag(string: "sbix")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
