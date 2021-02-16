@@ -33,7 +33,8 @@ struct Glyph {
     let advanceWidth: UInt16
     let leftSideBearing: Int16
     let path: Path
-    var name: String = ""
+    var name = ""
+    var svgURL: URL? = nil
 }
 
 let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare, name: "")
@@ -42,7 +43,13 @@ var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare,
     Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""),
     Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""),
     Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "")]
-for _ in 4 ... 81 {
+for _ in 4 ... 34 {
+    glyphs.append(commonGlyph)
+}
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "", svgURL: URL(fileURLWithPath: "Glyph35.svg")))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "", svgURL: URL(fileURLWithPath: "Glyph36.svg")))
+glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "", svgURL: URL(fileURLWithPath: "Glyph37.svg")))
+for _ in 38 ... 81 {
     glyphs.append(commonGlyph)
 }
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare, name: ""))
@@ -541,7 +548,7 @@ func nameTable() -> Data {
     var currentRecord = 0
 
     let appendString = { (platformID: UInt16, platformSpecificID: UInt16, languageID: UInt16, nameID: UInt16, string: String) in
-        overwrite(result, location: headerLocation + currentRecord * 12 , value: platformID)
+        overwrite(result, location: headerLocation + currentRecord * 12, value: platformID)
         overwrite(result, location: headerLocation + currentRecord * 12 + 2, value: platformSpecificID)
         overwrite(result, location: headerLocation + currentRecord * 12 + 4, value: languageID)
         overwrite(result, location: headerLocation + currentRecord * 12 + 6, value: nameID)
@@ -646,6 +653,40 @@ func postTable() -> Data {
         for codeUnit in name.utf8 {
             append(result, value: UInt8(codeUnit))
         }
+    }
+
+    return result as Data
+}
+
+func svgTable() -> Data {
+    let result = NSMutableData()
+    append(result, value: UInt16(0)) // Version
+    append(result, value: UInt32(10)) // svgDocumentListOffset
+    append(result, value: UInt32(0)) // Reserved
+    assert(result.count == 10)
+
+    append(result, value: UInt16(0)) // numEntries
+
+    var tempData = [Data]()
+    for glyphID in 0 ..< glyphs.count {
+        let glyph = glyphs[glyphID]
+        guard let svgURL = glyph.svgURL else {
+            continue
+        }
+        let data = try! Data(contentsOf: svgURL)
+        append(result, value: UInt16(glyphID)) // startGlyphID
+        append(result, value: UInt16(glyphID)) // startGlyphID
+        append(result, value: UInt32(0)) // svgDocOffset
+        append(result, value: UInt32(data.count)) // svgDocLength
+        tempData.append(data)
+    }
+    overwrite(result, location: 10, value: UInt16(tempData.count))
+    var svgDocOffset = 2 + tempData.count * 12
+    for i in 0 ..< tempData.count {
+        let tempDatum = tempData[i]
+        overwrite(result, location: 10 + 2 + i * 12 + 4, value: UInt32(svgDocOffset))
+        svgDocOffset += tempDatum.count
+        result.append(tempDatum)
     }
 
     return result as Data
@@ -832,8 +873,8 @@ func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag:
 
 let glyphData = generateGlyphData()
 
-let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let tables = [os2Table(), svgTable(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "SVG "), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()

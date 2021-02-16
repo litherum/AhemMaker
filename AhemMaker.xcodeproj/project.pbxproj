@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C77C8EF25DB5F5D00635E0C /* Glyph35.svg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1C77C8EE25DB5ED300635E0C /* Glyph35.svg */; };
+		1C77C8F225DB743800635E0C /* Glyph36.svg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1C77C8F125DB742600635E0C /* Glyph36.svg */; };
+		1C77C8F325DB743800635E0C /* Glyph37.svg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1C77C8F025DB742600635E0C /* Glyph37.svg */; };
 		C20D3F821D4E92470060BEA2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F811D4E92470060BEA2 /* main.swift */; };
 		C20D3F8B1D4E967C0060BEA2 /* Utils.c in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F891D4E967C0060BEA2 /* Utils.c */; };
 		C20D3FA01D4EE2CC0060BEA2 /* GlyphNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20D3F9F1D4EE2CC0060BEA2 /* GlyphNames.swift */; };
@@ -16,16 +19,22 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		C20D3F7C1D4E92470060BEA2 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				1C77C8F225DB743800635E0C /* Glyph36.svg in CopyFiles */,
+				1C77C8F325DB743800635E0C /* Glyph37.svg in CopyFiles */,
+				1C77C8EF25DB5F5D00635E0C /* Glyph35.svg in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1C77C8EE25DB5ED300635E0C /* Glyph35.svg */ = {isa = PBXFileReference; lastKnownFileType = text; path = Glyph35.svg; sourceTree = "<group>"; };
+		1C77C8F025DB742600635E0C /* Glyph37.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Glyph37.svg; sourceTree = "<group>"; };
+		1C77C8F125DB742600635E0C /* Glyph36.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Glyph36.svg; sourceTree = "<group>"; };
 		C20D3F7E1D4E92470060BEA2 /* AhemMaker */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AhemMaker; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20D3F811D4E92470060BEA2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		C20D3F881D4E967C0060BEA2 /* AhemMaker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AhemMaker-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -71,6 +80,9 @@
 				C20D3F881D4E967C0060BEA2 /* AhemMaker-Bridging-Header.h */,
 				C20D3F9F1D4EE2CC0060BEA2 /* GlyphNames.swift */,
 				C20D3FA11D4FE6BA0060BEA2 /* CharacterMap.swift */,
+				1C77C8EE25DB5ED300635E0C /* Glyph35.svg */,
+				1C77C8F125DB742600635E0C /* Glyph36.svg */,
+				1C77C8F025DB742600635E0C /* Glyph37.svg */,
 			);
 			path = AhemMaker;
 			sourceTree = "<group>";
