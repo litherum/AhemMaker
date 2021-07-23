@@ -8,7 +8,7 @@
 
 import Foundation
 
-let description = "The Ahem font was developed by Todd Fahrner and Myles C. Maxfield to help test writers develop predictable tests. The units per em is 1000, the advance is 800, and the descent is 200, thereby making the em square exactly square. The glyphs for most characters is simply a box which fills this square. The codepoints mapped to this full square with a full advance are the following ranges: U+20-U+26, U+28-U+6F, U+71-U+7E, U+A0-U+C8, U+CA-U+FF, U+131, U+152-U+153, U+178, U+192, U+2C6-U+2C7, U+2C9, U+2D8-U+2DD, U+394, U+3A5, U+3A7, U+3A9, U+3BC, U+3C0, U+2013-U+2014, U+2018-U+201A, U+201C-U+201E, U+2020-U+2022, U+2026, U+2030, U+2039-U+203A, U+2044, U+2122, U+2126, U+2202, U+2206, U+220F, U+2211-U+2212, U+2219-U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-U+2265, U+22F2, U+25CA, U+3007, U+4E00, U+4E03, U+4E09, U+4E5D, U+4E8C, U+4E94, U+516B, U+516D, U+5341, U+56D7, U+56DB, U+571F, U+6728, U+6C34, U+706B, U+91D1, U+F000-U+F002. The codepoints which are mapped to something else are the following: \" \" (U+20): No path but full advance; \"p\" (U+70): Path has 0 ascent but full descent; \"É\" (U+C9): Path has 0 descent but full ascent; Non-breaking space (U+A0): No path but full advance; Zero-width non-breaking space (U+FEFF): No path and 0 advance; En space (U+2002): No path and half advance; Em space (U+2003): No path but full advance; Three-per-em space (U+2004): No path and one third advance; Four-per-em space (U+2005): No path and one quarter advance; Six-per-em space (U+2006): No path and one sixth advance; Thin space (U+2009): No path and one fifth advance; Hair space (U+200A): No path and one tenth advance; Zero width space (U+200B): No path and no advance; Ideographic space (U+3000): No path but full advance; Zero width non-joiner (U+200C): No path and no advance; Zero width joiner (U+200D): No path and no advance; Greek capital letter Chi (U+3A7): Thin horizontal stripe and full advance; \"横\" (U+6A2A): Thin horizontal stripe and full advance; Greek capital letter Upsilon (U+3A5): Thin vertical stripe and full advance; \"纵\" (U+7EB5): Thin vertical stripe and full advance."
+let description = "The Ahem font was developed by Todd Fahrner and Myles C. Maxfield to help test writers develop predictable tests. The units per em is 1000, the advance is 800, and the descent is 200, thereby making the em square exactly square. The glyphs for most characters is simply a box which fills this square. The codepoints mapped to this full square with a full advance are the following ranges: U+20-U+26, U+28-U+6F, U+71-U+7E, U+A0-U+C8, U+CA-U+FF, U+131, U+152-U+153, U+178, U+192, U+2C6-U+2C7, U+2C9, U+2D8-U+2DD, U+394, U+3A5, U+3A7, U+3A9, U+3BC, U+3C0, U+2013-U+2014, U+2018-U+201A, U+201C-U+201E, U+2020-U+2022, U+2026, U+2030, U+2039-U+203A, U+2044, U+2122, U+2126, U+2202, U+2206, U+220F, U+2211-U+2212, U+2219-U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-U+2265, U+22F2, U+25CA, U+3007, U+4E00, U+4E03, U+4E09, U+4E5D, U+4E8C, U+4E94, U+516B, U+516D, U+5341, U+56D7, U+56DB, U+571F, U+6728, U+6C34, U+706B, U+91D1, U+F000-U+F002. The codepoints which are mapped to something else are the following: \" \" (U+20): No path but full advance; \"p\" (U+70): Path has 0 ascent but full descent; \"É\" (U+C9): Path has 0 descent but full ascent; Non-breaking space (U+A0): No path but full advance; Zero-width non-breaking space (U+FEFF): No path and 0 advance; En space (U+2002): No path and half advance; Em space (U+2003): No path but full advance; Three-per-em space (U+2004): No path and one third advance; Four-per-em space (U+2005): No path and one quarter advance; Six-per-em space (U+2006): No path and one sixth advance; Thin space (U+2009): No path and one fifth advance; Hair space (U+200A): No path and one tenth advance; Zero width space (U+200B): No path and no advance; Ideographic space (U+3000): No path but full advance; Zero width non-joiner (U+200C): No path and no advance; Zero width joiner (U+200D): No path and no advance; Greek capital letter Chi (U+3A7): Thin horizontal stripe and full advance; (U+6A2A): Thin horizontal stripe and full advance; Greek capital letter Upsilon (U+3A5): Thin vertical stripe and full advance; (U+7EB5): Thin vertical stripe and full advance."
 
 struct Point {
     let x: Int16
@@ -493,6 +493,7 @@ func nameTable() -> Data {
     let preferredFamily = "Ahem"
     let preferredSubfamily = "Regular"
     let compatibleFullName = "Ahem"
+    let trackName = "Normal Tracking"
 
     let unicode = UInt16(0)
     let macintosh = UInt16(1)
@@ -518,8 +519,9 @@ func nameTable() -> Data {
     let preferredFamilyID = UInt16(16)
     let preferredSubfamilyID = UInt16(17)
     let compatibleFullNameID = UInt16(18)
+    let trackNameID = UInt16(256)
 
-    let numberOfRecords = 36
+    let numberOfRecords = 39
     let offsetToStringData = 6 + 12 * numberOfRecords
 
     append(result, value: UInt16(0)) // Format
@@ -581,6 +583,7 @@ func nameTable() -> Data {
     appendString(unicode, defaultSemantics, 0, descriptionID, description)
     appendString(unicode, defaultSemantics, 0, vendorURLID, vendorURL)
     appendString(unicode, defaultSemantics, 0, licenseURLID, licenseURL)
+    appendString(unicode, defaultSemantics, 0, trackNameID, trackName)
     appendString(macintosh, roman, english, copyrightID, copyright)
     appendString(macintosh, roman, english, familyID, family)
     appendString(macintosh, roman, english, subfamilyID, subfamily)
@@ -594,6 +597,7 @@ func nameTable() -> Data {
     appendString(macintosh, roman, english, preferredFamilyID, preferredFamily)
     appendString(macintosh, roman, english, preferredSubfamilyID, preferredSubfamily)
     appendString(macintosh, roman, english, compatibleFullNameID, compatibleFullName)
+    appendString(macintosh, roman, english, trackNameID, trackName)
     appendString(windows, unicodeBMP, enUS, copyrightID, copyright)
     appendString(windows, unicodeBMP, enUS, familyID, family)
     appendString(windows, unicodeBMP, enUS, subfamilyID, subfamily)
@@ -607,6 +611,7 @@ func nameTable() -> Data {
     appendString(windows, unicodeBMP, enUS, preferredFamilyID, preferredFamily)
     appendString(windows, unicodeBMP, enUS, preferredSubfamilyID, preferredSubfamily)
     appendString(windows, unicodeBMP, enUS, compatibleFullNameID, compatibleFullName)
+    appendString(windows, unicodeBMP, enUS, trackNameID, trackName)
 
     assert(currentRecord == numberOfRecords)
 
@@ -647,6 +652,29 @@ func postTable() -> Data {
             append(result, value: UInt8(codeUnit))
         }
     }
+
+    return result as Data
+}
+
+func trakTable() -> Data {
+    let result = NSMutableData()
+    append(result, value: UInt32(0x10000)) // version
+    append(result, value: UInt16(0)) // format
+    append(result, value: UInt16(12)) // horizOffset
+    append(result, value: UInt16(0)) // vertOffset
+    append(result, value: UInt16(0)) // reserved
+
+    append(result, value: UInt16(1)) // nTracks
+    append(result, value: UInt16(1)) // nSizes
+    append(result, value: UInt32(28)) // sizeTableOffset
+
+    append(result, value: UInt32(0)) // track
+    append(result, value: UInt16(256)) // nameIndex
+    append(result, value: UInt16(32)) // offset
+
+    append(result, value: UInt32(64)) // sizeTable
+
+    append(result, value: UInt16(500)) // value
 
     return result as Data
 }
@@ -832,8 +860,8 @@ func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag:
 
 let glyphData = generateGlyphData()
 
-let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable(), trakTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post"), FourCharacterTag(string: "trak")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
