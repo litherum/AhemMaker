@@ -8,74 +8,64 @@
 
 import Foundation
 
-let description = "The Ahem font was developed by Todd Fahrner and Myles C. Maxfield to help test writers develop predictable tests. The units per em is 1000, the advance is 800, and the descent is 200, thereby making the em square exactly square. The glyphs for most characters is simply a box which fills this square. The codepoints mapped to this full square with a full advance are the following ranges: U+20-U+26, U+28-U+6F, U+71-U+7E, U+A0-U+C8, U+CA-U+FF, U+131, U+152-U+153, U+178, U+192, U+2C6-U+2C7, U+2C9, U+2D8-U+2DD, U+394, U+3A5, U+3A7, U+3A9, U+3BC, U+3C0, U+2013-U+2014, U+2018-U+201A, U+201C-U+201E, U+2020-U+2022, U+2026, U+2030, U+2039-U+203A, U+2044, U+2122, U+2126, U+2202, U+2206, U+220F, U+2211-U+2212, U+2219-U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-U+2265, U+22F2, U+25CA, U+3007, U+4E00, U+4E03, U+4E09, U+4E5D, U+4E8C, U+4E94, U+516B, U+516D, U+5341, U+56D7, U+56DB, U+571F, U+6728, U+6C34, U+706B, U+91D1, U+F000-U+F002. The codepoints which are mapped to something else are the following: \" \" (U+20): No path but full advance; \"p\" (U+70): Path has 0 ascent but full descent; \"É\" (U+C9): Path has 0 descent but full ascent; Non-breaking space (U+A0): No path but full advance; Zero-width non-breaking space (U+FEFF): No path and 0 advance; En space (U+2002): No path and half advance; Em space (U+2003): No path but full advance; Three-per-em space (U+2004): No path and one third advance; Four-per-em space (U+2005): No path and one quarter advance; Six-per-em space (U+2006): No path and one sixth advance; Thin space (U+2009): No path and one fifth advance; Hair space (U+200A): No path and one tenth advance; Zero width space (U+200B): No path and no advance; Ideographic space (U+3000): No path but full advance; Zero width non-joiner (U+200C): No path and no advance; Zero width joiner (U+200D): No path and no advance; Greek capital letter Chi (U+3A7): Thin horizontal stripe and full advance; \"横\" (U+6A2A): Thin horizontal stripe and full advance; Greek capital letter Upsilon (U+3A5): Thin vertical stripe and full advance; \"纵\" (U+7EB5): Thin vertical stripe and full advance."
+let description = "The Ahem font was developed by Todd Fahrner and Myles C. Maxfield to help test writers develop predictable tests. The units per em is 1000, the advance is 800, and the descent is 200, thereby making the em square exactly square. The glyphs for most characters is simply a box which fills this square. The codepoints mapped to this full square with a full advance are the following ranges: U+20-U+26, U+28-U+6F, U+71-U+7E, U+A0-U+C8, U+CA-U+FF, U+131, U+152-U+153, U+178, U+192, U+2C6-U+2C7, U+2C9, U+2D8-U+2DD, U+394, U+3A5, U+3A7, U+3A9, U+3BC, U+3C0, U+2013-U+2014, U+2018-U+201A, U+201C-U+201E, U+2020-U+2022, U+2026, U+2030, U+2039-U+203A, U+2044, U+2122, U+2126, U+2202, U+2206, U+220F, U+2211-U+2212, U+2219-U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-U+2265, U+22F2, U+25CA, U+3007, U+4E00, U+4E03, U+4E09, U+4E5D, U+4E8C, U+4E94, U+516B, U+516D, U+5341, U+56D7, U+56DB, U+571F, U+6728, U+6C34, U+706B, U+91D1, U+F000-U+F002. The codepoints which are mapped to something else are the following: \" \" (U+20): No path but full advance; \"p\" (U+70): Path has 0 ascent but full descent; \"É\" (U+C9): Path has 0 descent but full ascent; Non-breaking space (U+A0): No path but full advance; Zero-width non-breaking space (U+FEFF): No path and 0 advance; En space (U+2002): No path and half advance; Em space (U+2003): No path but full advance; Three-per-em space (U+2004): No path and one third advance; Four-per-em space (U+2005): No path and one quarter advance; Six-per-em space (U+2006): No path and one sixth advance; Thin space (U+2009): No path and one fifth advance; Hair space (U+200A): No path and one tenth advance; Zero width space (U+200B): No path and no advance; Ideographic space (U+3000): No path but full advance; Zero width non-joiner (U+200C): No path and no advance; Zero width joiner (U+200D): No path and no advance; Greek capital letter Chi (U+3A7): Thin horizontal stripe and full advance; (U+6A2A): Thin horizontal stripe and full advance; Greek capital letter Upsilon (U+3A5): Thin vertical stripe and full advance; (U+7EB5): Thin vertical stripe and full advance."
 
-struct Point {
-    let x: Int16
-    let y: Int16
-    let onCurve = true
+func createCheckerboardImage() -> CGImage {
+    let width = 32 // Must be a multiple of 32, see rdar://81639439
+    let height = 32
+    var data = [UInt8](repeating: 0, count: width * height);
+    for i in 0 ..< height {
+        for j in 0 ..< width {
+            if i % 2 == 0 {
+                if j % 2 == 0 {
+                    data[i * width + j] = 255
+                } else {
+                    data[i * width + j] = 0
+                }
+            } else {
+                if j % 2 == 0 {
+                    data[i * width + j] = 0
+                } else {
+                    data[i * width + j] = 255
+                }
+            }
+        }
+    }
+    let colorSpace = CGColorSpaceCreateDeviceGray()
+    let context = CGContext(data: &data, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width, space: colorSpace, bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+    return context.makeImage()!
 }
 
-typealias Contour = [Point]
+func getJPEGImage(name: String) -> CGImage {
+    let url = URL(fileURLWithPath: name)
+    let imageData = try! Data(contentsOf: url)
+    let dataProvider = CGDataProvider(data: imageData as NSData)!
+    let originalImage = CGImage(jpegDataProviderSource: dataProvider, decode: nil, shouldInterpolate: false, intent: .defaultIntent)!
 
-typealias Path = [Contour]
+    let newWidth = ((originalImage.width + 31) / 32) * 32 // Must be a multiple of 32, see rdar://81639439
+    let colorSpace = CGColorSpaceCreateDeviceGray()
+    let context = CGContext(data: nil, width: newWidth, height: originalImage.height, bitsPerComponent: 8, bytesPerRow: newWidth, space: colorSpace, bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+    context.draw(originalImage, in: CGRect(x: 0, y: 0, width: originalImage.width, height: originalImage.height))
+    return context.makeImage()!
+}
 
-let emptySquare: Path = [[Point(x: 125, y: 0), Point(x: 125, y: 800), Point(x: 875, y: 800), Point(x: 875, y: 0)], [Point(x: 250, y: 125), Point(x: 750, y: 125), Point(x: 750, y: 675), Point(x: 250, y: 675)]]
-let fullSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
-let ascenderSquare: Path = [[Point(x: 0, y: 800), Point(x: 1000, y: 800), Point(x: 1000, y: 0), Point(x: 0, y: 0)]]
-let descenderSquare: Path = [[Point(x: 0, y: 0), Point(x: 1000, y: 0), Point(x: 1000, y: -200), Point(x: 0, y: -200)]]
-let horizontalStripe: Path = [[Point(x: 0, y: 600), Point(x: 1000, y: 600), Point(x: 1000, y: 400), Point(x: 0, y: 400)]]
-let verticalStripe: Path = [[Point(x: 200, y: 800), Point(x: 400, y: 800), Point(x: 400, y: -200), Point(x: 200, y: -200)]]
-let emptyPath: Path = []
+let checkerboardImage = createCheckerboardImage()
+let image = getJPEGImage(name: "image1.jpg")
 
 struct Glyph {
-    // glyph name
-    let advanceWidth: UInt16
-    let leftSideBearing: Int16
-    let path: Path
+    let advanceWidth: UInt8
+    let leftSideBearing: Int8
+    let topBearing: Int8
+    let image: CGImage
     var name: String = ""
 }
 
-let commonGlyph = Glyph(advanceWidth: 1000, leftSideBearing: 0, path: fullSquare, name: "")
+let commonGlyph = Glyph(advanceWidth: 64, leftSideBearing: 0, topBearing: 51, image: image, name: "")
 
-var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare, name: ""),
-    Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""),
-    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""),
-    Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: "")]
-for _ in 4 ... 81 {
+var glyphs = [Glyph]()
+for _ in 0 ... 277 {
     glyphs.append(commonGlyph)
 }
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare, name: ""))
-for _ in 83 ... 99 {
-    glyphs.append(commonGlyph)
-}
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: ascenderSquare, name: ""))
-for _ in 101 ... 152 {
-    glyphs.append(commonGlyph)
-}
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
-for _ in 154 ... 244 {
-    glyphs.append(commonGlyph)
-}
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 500, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 333, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 250, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 167, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 200, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 100, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-glyphs.append(Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath, name: ""))
-for _ in 257 ... 273 {
-    glyphs.append(commonGlyph)
-}
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
 
 assert(glyphs.count == glyphNames.count)
 for i in 0 ..< glyphs.count {
@@ -161,20 +151,20 @@ func os2Table() -> Data {
     }
 
     append(result, value: UInt16(3)) // Version
-    append(result, value: Int16(982)) // Average character width
+    append(result, value: Int16(64)) // Average character width
     append(result, value: UInt16(400)) // Weight
     append(result, value: UInt16(5)) // Width
     append(result, value: Int16(0)) // fsType
-    append(result, value: Int16(700)) // Subscript horizontal size
-    append(result, value: Int16(650)) // Subscript vertical size
+    append(result, value: Int16(42)) // Subscript horizontal size
+    append(result, value: Int16(42)) // Subscript vertical size
     append(result, value: Int16(0)) // Subscript horizontal offset
-    append(result, value: Int16(143)) // Subscript vertical offset
-    append(result, value: Int16(700)) // Superscript horizontal size
-    append(result, value: Int16(650)) // Superscript vertical size
+    append(result, value: Int16(9)) // Subscript vertical offset
+    append(result, value: Int16(45)) // Superscript horizontal size
+    append(result, value: Int16(41)) // Superscript vertical size
     append(result, value: Int16(0)) // Superscript horizontal offset
-    append(result, value: Int16(453)) // Superscrpt vertical offset
-    append(result, value: Int16(50)) // Strikeout stroke width
-    append(result, value: Int16(259)) // Strikeout stroke position
+    append(result, value: Int16(29)) // Superscrpt vertical offset
+    append(result, value: Int16(3)) // Strikeout stroke width
+    append(result, value: Int16(17)) // Strikeout stroke position
     append(result, value: Int16(0)) // Family class
 
     // Panose
@@ -203,15 +193,15 @@ func os2Table() -> Data {
     append(result, value: UInt16(0x40)) // Regular style
     append(result, value: UInt16(firstChar))
     append(result, value: UInt16(lastChar))
-    append(result, value: Int16(800)) // Typographic ascender
-    append(result, value: Int16(-200)) // Typographic descender
+    append(result, value: Int16(51)) // Typographic ascender
+    append(result, value: Int16(-13)) // Typographic descender
     append(result, value: Int16(0)) // Typographic line gap
-    append(result, value: UInt16(800)) // Windows ascent
-    append(result, value: UInt16(200)) // Windows descent
+    append(result, value: UInt16(51)) // Windows ascent
+    append(result, value: UInt16(13)) // Windows descent
     append(result, value: UInt32(0xFF10FC07)) // Bitmask for supported codepages (Part 1). Report all pages as supported.
     append(result, value: UInt32(0x0000FFFF)) // Bitmask for supported codepages (Part 2). Report all pages as supported.
-    append(result, value: Int16(800)) // x height
-    append(result, value: Int16(800)) // Capital letter height
+    append(result, value: Int16(51)) // x height
+    append(result, value: Int16(51)) // Capital letter height
     append(result, value: UInt16(0)) // Default character
     append(result, value: UInt16(32)) // Break character
     append(result, value: UInt16(0)) // Maximum context necessary
@@ -321,33 +311,18 @@ func gaspTable() -> Data {
     return result as Data
 }
 
-func glyfTable() -> Data {
-    let result = NSMutableData()
-    for specificGlyphData in glyphData {
-        result.append(specificGlyphData)
-        if result.length % 2 == 1 {
-            append(result, value: UInt8(0))
-        }
-    }
-    return result as Data
-}
-
-func headTable() -> Data {
+func bhedTable() -> Data {
     let result = NSMutableData()
 
-    var xMin = Int16.max
-    var xMax = Int16.min
-    var yMin = Int16.max
-    var yMax = Int16.min
+    var xMin = Int8.max
+    var xMax = UInt8.min
+    var yMin = Int8.max
+    var yMax = UInt8.min
     for glyph in glyphs {
-        for contour in glyph.path {
-            for point in contour {
-                xMin = min(xMin, point.x)
-                xMax = max(xMax, point.x)
-                yMin = min(yMin, point.y)
-                yMax = max(yMax, point.y)
-            }
-        }
+        xMin = min(xMin, glyph.leftSideBearing)
+        xMax = max(xMax, UInt8(glyph.leftSideBearing) + UInt8(glyph.image.width))
+        yMin = min(yMin, glyph.topBearing)
+        yMax = max(yMax, UInt8(glyph.topBearing) + UInt8(glyph.image.height))
     }
 
     append(result, value: UInt32(0x10000)) // Version
@@ -358,20 +333,112 @@ func headTable() -> Data {
     append(result, value: UInt8(0x3C)) // Magic number
     append(result, value: UInt8(0xF5)) // Magic number
     append(result, value: UInt16(0x9)) // y=0 is baseline, and use integer scaling
-    append(result, value: UInt16(1000)) // Units per em
+    append(result, value: UInt16(64)) // Units per em
     append(result, value: UInt32(0)) // Created datetime 1
     append(result, value: UInt32(3010420569)) // Created datetime 2
     append(result, value: UInt32(0)) // Modified datetime 1
     append(result, value: UInt32(3302861604)) // Modified datetime 2
     append(result, value: Int16(xMin))
     append(result, value: Int16(yMin))
-    append(result, value: Int16(xMax))
-    append(result, value: Int16(yMax))
+    append(result, value: UInt16(xMax))
+    append(result, value: UInt16(yMax))
     append(result, value: UInt16(0)) // Style: normal
     append(result, value: UInt16(3)) // Smallest readable size
     append(result, value: Int16(0)) // Mixed directional glyphs
     append(result, value: Int16(0)) // 2-byte offsets in loca table
     append(result, value: Int16(0))
+    return result as Data
+}
+
+func bdatTable() -> Data {
+    let result = NSMutableData()
+    append(result, value: UInt32(0x20000)) // Version
+    for specificGlyphData in glyphData {
+        result.append(specificGlyphData)
+    }
+    return result as Data
+}
+
+func blocTable() -> Data {
+    let indexSubTableArrayOffset = UInt32(56)
+    let indexTableSize = UInt32(16 + (glyphData.count + 1) * 4)
+    
+    var xMin = Int8.max
+    var xMax = UInt8.min
+    var yMin = Int8.max
+    var yMax = UInt8.min
+    var minAdvanceSB = Int8.max
+    var widthMax = UInt8.min
+    var heightMax = UInt8.min
+    for glyph in glyphs {
+        xMin = min(xMin, glyph.leftSideBearing)
+        xMax = max(xMax, UInt8(glyph.leftSideBearing) + UInt8(glyph.image.width))
+        yMin = min(yMin, glyph.topBearing)
+        yMax = max(yMax, UInt8(glyph.topBearing) + UInt8(glyph.image.height))
+        minAdvanceSB = min(minAdvanceSB, Int8(Int(glyph.advanceWidth) - (Int(glyph.leftSideBearing) + Int(glyph.image.width))))
+        widthMax = max(widthMax, UInt8(glyph.image.width))
+        heightMax = max(heightMax, UInt8(glyph.image.height))
+    }
+
+    let result = NSMutableData()
+    append(result, value: UInt32(0x20000)) // Version
+    append(result, value: UInt32(1)) // NumSizes
+
+    append(result, value: indexSubTableArrayOffset) // indexSubTableArrayOffset
+    append(result, value: indexTableSize) // indexTableSize
+    append(result, value: UInt32(1)) // numberOfIndexSubTables
+    append(result, value: UInt32(0)) // colorRef
+
+    // Horizontal line metrics
+    append(result, value: UInt8(51)) // ascender
+    append(result, value: UInt8(13)) // descender
+    append(result, value: widthMax) // widthMax
+    append(result, value: UInt8(1)) // caretSlopeNumerator
+    append(result, value: UInt8(0)) // caretSlopeDenominator
+    append(result, value: UInt8(0)) // caretOffset
+    append(result, value: xMin) // minOriginSB
+    append(result, value: minAdvanceSB) // minAdvanceSB
+    append(result, value: yMax) // maxBeforeBL
+    append(result, value: yMin) // minAfterBL
+    append(result, value: UInt16(0)) // pad
+
+    // Vertical line metrics
+    append(result, value: UInt8(32)) // ascender
+    append(result, value: UInt8(32)) // descender
+    append(result, value: heightMax) // widthMax
+    append(result, value: UInt8(1)) // caretSlopeNumerator
+    append(result, value: UInt8(0)) // caretSlopeDenominator
+    append(result, value: UInt8(0)) // caretOffset
+    append(result, value: UInt8(0)) // minOriginSB
+    append(result, value: UInt8(0)) // minAdvanceSB
+    append(result, value: UInt8(0)) // maxBeforeBL
+    append(result, value: UInt8(0)) // minAfterBL
+    append(result, value: UInt16(0)) // pad
+
+    append(result, value: UInt16(0)) // startGlyphIndex
+    append(result, value: UInt16(glyphs.count)) // endGlyphIndex
+    append(result, value: UInt8(64)) // ppemX
+    append(result, value: UInt8(64)) // ppemY
+    append(result, value: UInt8(1)) // bitDepth
+    append(result, value: UInt8(0)) // flags
+
+    assert(result.count == Int(indexSubTableArrayOffset))
+    append(result, value: UInt16(0)) // firstGlyphIndex
+    append(result, value: UInt16(glyphs.count)) // lastGlyphIndex
+    append(result, value: UInt32(8)) // additionalOffsetToIndexSubtable
+
+    append(result, value: UInt16(1)) // indexFormat
+    append(result, value: UInt16(7)) // imageFormat
+    append(result, value: UInt32(4)) // imageDataOffset
+
+    var offset = 0
+    for individualGlyphData in glyphData {
+        append(result, value: UInt32(offset)) // offset
+        offset = offset + individualGlyphData.count
+    }
+    append(result, value: UInt32(offset)) // offset
+    assert(result.count - Int(indexSubTableArrayOffset) == Int(indexTableSize))
+
     return result as Data
 }
 
@@ -382,27 +449,14 @@ func hheaTable() -> Data {
     var minLeftSideBearing = Int16.max
     var xMaxExtent = Int16.min
     for glyph in glyphs {
-        advanceWidthMax = max(advanceWidthMax, glyph.advanceWidth)
-        minLeftSideBearing = min(minLeftSideBearing, glyph.leftSideBearing)
-        var xMin = Int16.max
-        var xMax = Int16.min
-        if glyph.path.isEmpty {
-            xMin = 0
-            xMax = 0
-        } else {
-            for contour in glyph.path {
-                for point in contour {
-                    xMin = min(xMin, point.x)
-                    xMax = max(xMax, point.x)
-                }
-            }
-        }
-        xMaxExtent = max(xMaxExtent, glyph.leftSideBearing + (xMax - xMin))
+        advanceWidthMax = max(advanceWidthMax, UInt16(glyph.advanceWidth))
+        minLeftSideBearing = min(minLeftSideBearing, Int16(glyph.leftSideBearing))
+        xMaxExtent = max(xMaxExtent, Int16(glyph.leftSideBearing) + Int16(glyph.image.width))
     }
 
     append(result, value: UInt32(0x10000)) // Version
-    append(result, value: Int16(800)) // Ascent
-    append(result, value: Int16(-200)) // Descent
+    append(result, value: Int16(51)) // Ascent
+    append(result, value: Int16(-13)) // Descent
     append(result, value: Int16(0)) // Line Gap
     append(result, value: UInt16(advanceWidthMax))
     append(result, value: Int16(minLeftSideBearing))
@@ -427,43 +481,13 @@ func hmtxTable() -> Data {
     return result as Data
 }
 
-func locaTable() -> Data {
-    let result = NSMutableData()
-    var offsets = [Int]()
-    var offset = 0
-    for individualGlyphData in glyphData {
-        offsets.append(offset)
-        offset = offset + individualGlyphData.count
-        if offset % 2 == 1 {
-            offset = offset + 1
-        }
-    }
-    offsets.append(offset)
-    assert(offset / 2 <= 0xFFFF)
-    for offset in offsets {
-        append(result, value: UInt16(offset) / 2)
-    }
-    return result as Data
-}
-
 func maxpTable() -> Data {
     let result = NSMutableData()
 
-    var maxPoints = 0
-    var maxContours = 0
-    for glyph in glyphs {
-        var currentPoints = 0
-        for contour in glyph.path {
-            currentPoints = currentPoints + contour.count
-        }
-        maxPoints = max(maxPoints, currentPoints)
-        maxContours = max(maxContours, glyph.path.count)
-    }
-
     append(result, value: UInt32(0x10000)) // Version
     append(result, value: UInt16(glyphs.count))
-    append(result, value: UInt16(maxPoints))
-    append(result, value: UInt16(maxContours))
+    append(result, value: UInt16(0)) // maxPoints
+    append(result, value: UInt16(0)) // maxContours
     append(result, value: UInt16(0)) // Maximum points in compound glyph
     append(result, value: UInt16(0)) // Maximum contours in compound glyph
     append(result, value: UInt16(1)) // Maximum zones
@@ -617,8 +641,8 @@ func postTable() -> Data {
     let result = NSMutableData()
     append(result, value: UInt32(0x20000)) // Format
     append(result, value: UInt32(0)) // Italic angle
-    append(result, value: Int16(-133)) // Underline position
-    append(result, value: Int16(20)) // Underline thickness
+    append(result, value: Int16(-9)) // Underline position
+    append(result, value: Int16(1)) // Underline thickness
     append(result, value: UInt32(0)) // Not fixed-pitch
     append(result, value: UInt32(0)) // Minimum memory needed in a type 42 representation
     append(result, value: UInt32(0)) // Maximum memory needed in a type 42 representation
@@ -651,129 +675,55 @@ func postTable() -> Data {
     return result as Data
 }
 
+func getBits(image: CGImage) -> Data {
+    let colorSpace = CGColorSpaceCreateDeviceGray()
+    let context = CGContext(data: nil, width: image.width, height: image.height, bitsPerComponent: 8, bytesPerRow: image.width, space: colorSpace, bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+    context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+    context.flush()
+    let pointer = context.data!.bindMemory(to: UInt8.self, capacity: image.width * image.height)
+    var result = Data()
+    var index = 0
+    while true {
+        var newElement = UInt8(0)
+        for i in 0 ..< 8 {
+            if index == image.width * image.height {
+                if i != 0 {
+                    newElement = newElement << (8 - i)
+                    result.append(newElement)
+                }
+                return result
+            }
+            newElement = newElement << 1
+            newElement = newElement | (pointer[index] >= 128 ? 1 : 0)
+            index += 1
+        }
+        result.append(newElement)
+    }
+}
+
 func generateGlyphData() -> [Data] {
     var result = [Data]()
     for glyph in glyphs {
         let r = NSMutableData()
 
-        if glyph.path.count == 0 || (glyph.path.count == 1 && glyph.path[0].count == 0) {
-            result.append(r as Data)
-            continue
+        append(r, value: UInt8(glyph.image.height)) // height
+        append(r, value: UInt8(glyph.image.width)) // width
+        append(r, value: glyph.leftSideBearing) // horiBearingX
+        append(r, value: glyph.topBearing) // horiBearingY
+        append(r, value: glyph.advanceWidth) // horiAdvance
+        append(r, value: UInt8(glyph.image.width) / 2) // vertBearingX
+        append(r, value: UInt8(0)) // vertBearingY
+        append(r, value: glyph.advanceWidth) // vertAdvance
+
+        if glyph.image.width >= 32 {
+            append(r, value: UInt32(0))
         }
 
-        var xMin = Int16.max
-        var yMin = Int16.max
-        var xMax = Int16.min
-        var yMax = Int16.min
-        var endPtsOfContours = [UInt16]()
-        var currentPointCount = 0
-        if glyph.path.isEmpty {
-            xMin = 0
-            yMin = 0
-            xMax = 0
-            yMax = 0
-        } else {
-            for contour in glyph.path {
-                currentPointCount = currentPointCount + contour.count
-                endPtsOfContours.append(UInt16(currentPointCount - 1))
-                for point in contour {
-                    xMin = min(xMin, point.x)
-                    yMin = min(yMin, point.y)
-                    xMax = max(xMax, point.x)
-                    yMax = max(yMax, point.y)
-                }
-            }
+        r.append(getBits(image: glyph.image))
+
+        while r.count % 4 != 0 {
+            append(r, value: UInt8(0))
         }
-
-        append(r, value: Int16(glyph.path.count))
-        append(r, value: Int16(xMin))
-        append(r, value: Int16(yMin))
-        append(r, value: Int16(xMax))
-        append(r, value: Int16(yMax))
-
-        for endPoint in endPtsOfContours {
-            append(r, value: UInt16(endPoint))
-        }
-        append(r, value: UInt16(0)) // length of instructions
-
-        var flags = [UInt8]()
-        let xCoordinates = NSMutableData()
-        let yCoordinates = NSMutableData()
-
-        let onCurve = UInt8(1)
-        let xShort = UInt8(2)
-        let yShort = UInt8(4)
-        let repeatCount = UInt8(8)
-        let xIsSame = UInt8(16)
-        let yIsSame = UInt8(32)
-
-        var previousX = Int16(0)
-        var previousY = Int16(0)
-        for contour in glyph.path {
-            for point in contour {
-                var flag = UInt8(0)
-                if point.onCurve {
-                    flag = flag | onCurve
-                }
-                if point.x == previousX {
-                    flag = flag | xIsSame
-                } else {
-                    let delta = point.x - previousX
-                    if abs(delta) < 256 {
-                        flag = flag | xShort
-                        append(xCoordinates, value: UInt8(abs(delta)))
-                        if delta >= 0 {
-                            flag = flag | xIsSame
-                        }
-                    } else {
-                        append(xCoordinates, value: Int16(point.x - previousX))
-                    }
-                }
-                if point.y == previousY {
-                    flag = flag | yIsSame
-                } else {
-                    let delta = point.y - previousY
-                    if abs(delta) < 256 {
-                        flag = flag | yShort
-                        append(yCoordinates, value: UInt8(abs(delta)))
-                        if delta >= 0 {
-                            flag = flag | yIsSame
-                        }
-                    } else {
-                        append(yCoordinates, value: Int16(point.y - previousY))
-                    }
-                }
-                flags.append(flag)
-                previousX = point.x
-                previousY = point.y
-            }
-        }
-
-        let flagData = NSMutableData()
-        var flagIndex = 0
-        while flagIndex < flags.count {
-            var flag = flags[flagIndex]
-            var run = flagIndex + 1
-            while run < flags.count && flags[run] == flag {
-                run = run + 1
-            }
-            if run > flagIndex + 1 {
-                flag = flag | repeatCount
-                append(flagData, value: UInt8(flag))
-                append(flagData, value: UInt8(flagIndex - 1))
-            } else {
-                append(flagData, value: UInt8(flag))
-            }
-            flagIndex = run
-        }
-
-        r.append(flagData as Data)
-        r.append(xCoordinates as Data)
-        r.append(yCoordinates as Data)
-
-        assert(flagData.length > 0)
-        assert(xCoordinates.length > 0)
-        assert(yCoordinates.length > 0)
 
         result.append(r as Data)
     }
@@ -832,8 +782,8 @@ func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag:
 
 let glyphData = generateGlyphData()
 
-let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let tables = [os2Table(), bdatTable(), bhedTable(), blocTable(), cmapTable(), gaspTable(), hheaTable(), hmtxTable(), maxpTable(), nameTable(), postTable()]
+let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "bdat"), FourCharacterTag(string: "bhed"), FourCharacterTag(string: "bloc"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
@@ -852,16 +802,16 @@ for _ in tables {
     append(result, value: UInt32(0))
 }
 
-var headTableLocation = -1
+var bhedTableLocation = -1
 for i in 0 ..< tables.count {
-    if tableCodes[i] == FourCharacterTag(string: "head") {
-        headTableLocation = result.length
+    if tableCodes[i] == FourCharacterTag(string: "bhed") {
+        bhedTableLocation = result.length
     }
     appendTable(result, table: tables[i], headerLocation: headerLocation + 4 * 4 * i, tag: tableCodes[i])
 }
 
-assert(headTableLocation != -1)
-overwrite(result, location: headTableLocation + 8, value: 0xB1B0AFBA &- calculateChecksum(result as Data, location: 0, endLocation: result.length))
+assert(bhedTableLocation != -1)
+overwrite(result, location: bhedTableLocation + 8, value: 0xB1B0AFBA &- calculateChecksum(result as Data, location: 0, endLocation: result.length))
 
 if CommandLine.arguments.count != 2 {
     print("Need a command line argument specifying the location to write the output file!")
