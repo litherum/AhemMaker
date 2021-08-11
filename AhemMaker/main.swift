@@ -8,7 +8,7 @@
 
 import Foundation
 
-let description = "The Ahem font was developed by Todd Fahrner and Myles C. Maxfield to help test writers develop predictable tests. The units per em is 1000, the advance is 800, and the descent is 200, thereby making the em square exactly square. The glyphs for most characters is simply a box which fills this square. The codepoints mapped to this full square with a full advance are the following ranges: U+20-U+26, U+28-U+6F, U+71-U+7E, U+A0-U+C8, U+CA-U+FF, U+131, U+152-U+153, U+178, U+192, U+2C6-U+2C7, U+2C9, U+2D8-U+2DD, U+394, U+3A5, U+3A7, U+3A9, U+3BC, U+3C0, U+2013-U+2014, U+2018-U+201A, U+201C-U+201E, U+2020-U+2022, U+2026, U+2030, U+2039-U+203A, U+2044, U+2122, U+2126, U+2202, U+2206, U+220F, U+2211-U+2212, U+2219-U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-U+2265, U+22F2, U+25CA, U+3007, U+4E00, U+4E03, U+4E09, U+4E5D, U+4E8C, U+4E94, U+516B, U+516D, U+5341, U+56D7, U+56DB, U+571F, U+6728, U+6C34, U+706B, U+91D1, U+F000-U+F002. The codepoints which are mapped to something else are the following: \" \" (U+20): No path but full advance; \"p\" (U+70): Path has 0 ascent but full descent; \"É\" (U+C9): Path has 0 descent but full ascent; Non-breaking space (U+A0): No path but full advance; Zero-width non-breaking space (U+FEFF): No path and 0 advance; En space (U+2002): No path and half advance; Em space (U+2003): No path but full advance; Three-per-em space (U+2004): No path and one third advance; Four-per-em space (U+2005): No path and one quarter advance; Six-per-em space (U+2006): No path and one sixth advance; Thin space (U+2009): No path and one fifth advance; Hair space (U+200A): No path and one tenth advance; Zero width space (U+200B): No path and no advance; Ideographic space (U+3000): No path but full advance; Zero width non-joiner (U+200C): No path and no advance; Zero width joiner (U+200D): No path and no advance; Greek capital letter Chi (U+3A7): Thin horizontal stripe and full advance; \"横\" (U+6A2A): Thin horizontal stripe and full advance; Greek capital letter Upsilon (U+3A5): Thin vertical stripe and full advance; \"纵\" (U+7EB5): Thin vertical stripe and full advance."
+let description = "The Ahem font was developed by Todd Fahrner and Myles C. Maxfield to help test writers develop predictable tests. The units per em is 1000, the advance is 800, and the descent is 200, thereby making the em square exactly square. The glyphs for most characters is simply a box which fills this square. The codepoints mapped to this full square with a full advance are the following ranges: U+20-U+26, U+28-U+6F, U+71-U+7E, U+A0-U+C8, U+CA-U+FF, U+131, U+152-U+153, U+178, U+192, U+2C6-U+2C7, U+2C9, U+2D8-U+2DD, U+394, U+3A5, U+3A7, U+3A9, U+3BC, U+3C0, U+2013-U+2014, U+2018-U+201A, U+201C-U+201E, U+2020-U+2022, U+2026, U+2030, U+2039-U+203A, U+2044, U+2122, U+2126, U+2202, U+2206, U+220F, U+2211-U+2212, U+2219-U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-U+2265, U+22F2, U+25CA, U+3007, U+4E00, U+4E03, U+4E09, U+4E5D, U+4E8C, U+4E94, U+516B, U+516D, U+5341, U+56D7, U+56DB, U+571F, U+6728, U+6C34, U+706B, U+91D1, U+F000-U+F002. The codepoints which are mapped to something else are the following: \" \" (U+20): No path but full advance; \"p\" (U+70): Path has 0 ascent but full descent; \"É\" (U+C9): Path has 0 descent but full ascent; Non-breaking space (U+A0): No path but full advance; Zero-width non-breaking space (U+FEFF): No path and 0 advance; En space (U+2002): No path and half advance; Em space (U+2003): No path but full advance; Three-per-em space (U+2004): No path and one third advance; Four-per-em space (U+2005): No path and one quarter advance; Six-per-em space (U+2006): No path and one sixth advance; Thin space (U+2009): No path and one fifth advance; Hair space (U+200A): No path and one tenth advance; Zero width space (U+200B): No path and no advance; Ideographic space (U+3000): No path but full advance; Zero width non-joiner (U+200C): No path and no advance; Zero width joiner (U+200D): No path and no advance; Greek capital letter Chi (U+3A7): Thin horizontal stripe and full advance; (U+6A2A): Thin horizontal stripe and full advance; Greek capital letter Upsilon (U+3A5): Thin vertical stripe and full advance; (U+7EB5): Thin vertical stripe and full advance."
 
 struct Point {
     let x: Int16
@@ -76,6 +76,8 @@ glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStri
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStripe, name: ""))
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
+
+let featureAdvances: [Int : UInt16] = [35 : 1000, 36 : 1000]
 
 assert(glyphs.count == glyphNames.count)
 for i in 0 ..< glyphs.count {
@@ -651,6 +653,100 @@ func postTable() -> Data {
     return result as Data
 }
 
+func gposTable() -> Data {
+    let result = NSMutableData()
+
+    // GPOS header
+    let scriptListOffset = UInt16(10)
+    let featureListOffset = UInt16(30)
+    let lookupListOffset = UInt16(44)
+    append(result, value: UInt16(1)) // majorVersion
+    append(result, value: UInt16(0)) // minorVersion
+    append(result, value: scriptListOffset) // scriptListOffset
+    append(result, value: featureListOffset) // featureListOffset
+    append(result, value: lookupListOffset) // lookupListOffset
+
+    // Script list table
+    assert(result.count == Int(scriptListOffset))
+    let scriptOffset = UInt16(8)
+    append(result, value: UInt16(1)) // scriptCount
+    append(result, value: UInt8(0x44)) // scriptTag 'D'
+    append(result, value: UInt8(0x46)) // scriptTag 'F'
+    append(result, value: UInt8(0x4C)) // scriptTag 'L'
+    append(result, value: UInt8(0x54)) // scriptTag 'T'
+    append(result, value: scriptOffset) // scriptOffset
+
+    // Script table
+    assert(result.count == Int(scriptListOffset) + Int(scriptOffset))
+    let defaultLangSysOffset = UInt16(4)
+    append(result, value: defaultLangSysOffset) // defaultLangSysOffset
+    append(result, value: UInt16(0)) // langSysCount
+
+    // Language system table
+    assert(result.count == Int(scriptListOffset) + Int(scriptOffset) + Int(defaultLangSysOffset))
+    append(result, value: UInt16(0)) // lookupOrderOffset
+    append(result, value: UInt16(0)) // requiredFeatureIndex
+    append(result, value: UInt16(1)) // featureIndexCount
+    append(result, value: UInt16(0)) // featureIndices
+
+    // Feature list table
+    assert(result.count == Int(featureListOffset))
+    let featureOffset = UInt16(8)
+    append(result, value: UInt16(1)) // featureCount
+    append(result, value: UInt8(0x6B)) // scriptTag 'k'
+    append(result, value: UInt8(0x65)) // scriptTag 'e'
+    append(result, value: UInt8(0x72)) // scriptTag 'r'
+    append(result, value: UInt8(0x6E)) // scriptTag 'n'
+    append(result, value: featureOffset) // featureOffset
+
+    // Feature table
+    assert(result.count == Int(featureListOffset) + Int(featureOffset))
+    append(result, value: UInt16(0)) // featureParamsOffset
+    append(result, value: UInt16(1)) // lookupIndexCount
+    append(result, value: UInt16(0)) // lookupListIndices
+
+    // Lookup list table
+    assert(result.count == Int(lookupListOffset))
+    let lookupOffset = UInt16(4)
+    append(result, value: UInt16(1)) // lookupCount
+    append(result, value: lookupOffset) // lookupOffsets
+
+    // Lookup table
+    assert(result.count == Int(lookupListOffset) + Int(lookupOffset))
+    let subtableOffset = UInt16(8)
+    append(result, value: UInt16(1)) // lookupType
+    append(result, value: UInt16(0)) // lookupFlag
+    append(result, value: UInt16(1)) // subTableCount
+    append(result, value: subtableOffset) // subtableOffset
+
+    var gatheredFeatureAdvances: [(Int, UInt16)] = []
+    for featureAdvance in featureAdvances {
+        gatheredFeatureAdvances.append((featureAdvance.key, featureAdvance.value))
+    }
+    gatheredFeatureAdvances.sort { $0.0 < $1.0 }
+
+    // Lookup subtable
+    assert(result.count == Int(lookupListOffset) + Int(lookupOffset) + Int(subtableOffset))
+    let lookupSubtableLocation = result.count
+    append(result, value: UInt16(2)) // posFormat
+    append(result, value: UInt16(0)) // coverageOffset
+    append(result, value: UInt16(0x0004)) // valueFormat = X_ADVANCE
+    append(result, value: UInt16(gatheredFeatureAdvances.count)) // valueCount
+    for featureAdvance in featureAdvances {
+        append(result, value: Int16(featureAdvance.value)) // xAdvance
+    }
+
+    // Coverage table
+    overwrite(result, location: lookupSubtableLocation + 1 * MemoryLayout<UInt16>.stride, value: UInt16(result.count - lookupSubtableLocation))
+    append(result, value: UInt16(1)) // coverageFormat
+    append(result, value: UInt16(gatheredFeatureAdvances.count)) // glyphCount
+    for gatheredFeatureAdvance in gatheredFeatureAdvances {
+        append(result, value: UInt16(gatheredFeatureAdvance.0)) // glyphArray
+    }
+
+    return result as Data
+}
+
 func generateGlyphData() -> [Data] {
     var result = [Data]()
     for glyph in glyphs {
@@ -832,8 +928,8 @@ func appendTable(_ result: NSMutableData, table: Data, headerLocation: Int, tag:
 
 let glyphData = generateGlyphData()
 
-let tables = [os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
-let tableCodes = [FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
+let tables = [gposTable(), os2Table(), cmapTable(), gaspTable(), glyfTable(), headTable(), hheaTable(), hmtxTable(), locaTable(), maxpTable(), nameTable(), postTable()]
+let tableCodes = [FourCharacterTag(string: "GPOS"), FourCharacterTag(string: "OS/2"), FourCharacterTag(string: "cmap"), FourCharacterTag(string: "gasp"), FourCharacterTag(string: "glyf"), FourCharacterTag(string: "head"), FourCharacterTag(string: "hhea"), FourCharacterTag(string: "hmtx"), FourCharacterTag(string: "loca"), FourCharacterTag(string: "maxp"), FourCharacterTag(string: "name"), FourCharacterTag(string: "post")]
 assert(tables.count == tableCodes.count)
 
 let result = NSMutableData()
