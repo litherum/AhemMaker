@@ -77,7 +77,7 @@ glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: horizontalStri
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 200, path: verticalStripe, name: ""))
 
-let ligatures: [[Int] : Int] = [[256, 36] : 82, [35, 36] : 82]
+let ligatures: [[Int] : Int] = [[36, 256] : 82, [35, 36] : 82]
 
 assert(glyphs.count == glyphNames.count)
 for i in 0 ..< glyphs.count {
@@ -737,6 +737,7 @@ func gsubTable() -> Data {
         }
         gatheredLigatures.append((first, partialResult))
     }
+    gatheredLigatures.sort { $0.0 < $1.0 }
 
     // Lookup subtable
     assert(result.count == Int(lookupListOffset) + Int(lookupOffset) + Int(subtableOffset))
