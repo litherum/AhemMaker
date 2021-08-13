@@ -743,7 +743,7 @@ func gsubTable() -> Data {
     assert(result.count == Int(lookupListOffset) + Int(lookupOffset) + Int(subtableOffset))
     let lookupSubtableLocation = result.count
     append(result, value: UInt16(1)) // substFormat
-    append(result, value: UInt16(0)) // coverageOffset FIXME
+    append(result, value: UInt16(0)) // coverageOffset
     append(result, value: UInt16(gatheredLigatures.count)) // ligatureSetCount
     let ligatureSetOffsetsLocation = result.count
     for _ in gatheredLigatures {
@@ -766,7 +766,7 @@ func gsubTable() -> Data {
         overwrite(result, location: ligatureSetOffsetsLocation + i * MemoryLayout<UInt16>.stride, value: UInt16(result.count - lookupSubtableLocation))
         append(result, value: UInt16(ligature.1.count)) // ligatureCount
         for _ in ligature.1 {
-            append(result, value: UInt16(0)) // ligatureOffsets FIXME
+            append(result, value: UInt16(0)) // ligatureOffsets
         }
     }
 
