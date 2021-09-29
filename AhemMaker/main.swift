@@ -702,14 +702,19 @@ func colrTable() -> Data {
 
 func cpalTable() -> Data {
     let result = NSMutableData()
-    append(result, value: UInt16(0)) // Version
+    append(result, value: UInt16(1)) // Version
     append(result, value: UInt16(8)) // Number of palette entries in each palette
     append(result, value: UInt16(16)) // Number of palettes
     append(result, value: UInt16(24)) // Number of color records
-    append(result, value: UInt32(12 + 16 * 2)) // Offset to first color record
+    append(result, value: UInt32(12 + 16 * 2 + 12)) // Offset to first color record
     for i in 0 ..< 16 {
         append(result, value: UInt16(i)) // Index of the palette's first color record
     }
+    let paletteTypesArrayOffset = 12 + 16 * 2 + 12 + 8 * 3 * 4
+    append(result, value: UInt32(paletteTypesArrayOffset)) // PaletteTypesArrayOffset
+    // FIXME: Specify labels when they are observable.
+    append(result, value: UInt32(0)) // PaletteLabelsArrayOffset
+    append(result, value: UInt32(0)) // PaletteEntryLabelsArrayOffset
 
     for _ in 0 ..< 3 {
         for i in 0 ..< 8 {
@@ -717,6 +722,19 @@ func cpalTable() -> Data {
             append(result, value: UInt8((((i / 2) % 2) == 1) ? 255 : 0)) // Green
             append(result, value: UInt8((((i / 1) % 2) == 1) ? 255 : 0)) // Red
             append(result, value: UInt8(255)) // Alpha
+        }
+    }
+
+    assert(result.length == paletteTypesArrayOffset)
+
+    for i in 0 ..< 16 {
+        switch i {
+        case 2:
+            append(result, value: UInt32(1)) // USABLE_WITH_LIGHT_BACKGROUND
+        case 3:
+            append(result, value: UInt32(2)) // USABLE_WITH_DARK_BACKGROUND
+        default:
+            append(result, value: UInt32(0)) // Flags
         }
     }
 
