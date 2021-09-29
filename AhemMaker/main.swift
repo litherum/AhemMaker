@@ -48,12 +48,15 @@ var glyphs = [Glyph(advanceWidth: 1000, leftSideBearing: 125, path: emptySquare)
     Glyph(advanceWidth: 0, leftSideBearing: 0, path: emptyPath),
     Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath),
     Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath)]
-for _ in 4 ... 34 {
-    glyphs.append(commonGlyph)
-}
-glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, layers: [Layer(glyphID: 36, paletteIndex: 0), Layer(glyphID: 277, paletteIndex: 1)]))
-for _ in 36 ... 81 {
-    glyphs.append(commonGlyph)
+for i in 4 ... 81 {
+    let delta = i - 4
+    let color0 = delta / 8
+    let color1 = delta % 8
+    if color0 < 8 {
+        glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: emptyPath, layers: [Layer(glyphID: 81, paletteIndex: UInt16(color0)), Layer(glyphID: 277, paletteIndex: UInt16(color1))]))
+    } else {
+        glyphs.append(commonGlyph)
+    }
 }
 glyphs.append(Glyph(advanceWidth: 1000, leftSideBearing: 0, path: descenderSquare))
 for _ in 83 ... 99 {
@@ -700,32 +703,23 @@ func colrTable() -> Data {
 func cpalTable() -> Data {
     let result = NSMutableData()
     append(result, value: UInt16(0)) // Version
-    append(result, value: UInt16(2)) // Number of palette entries in each palette
-    append(result, value: UInt16(2)) // Number of palettes
-    append(result, value: UInt16(4)) // Number of color records
-    append(result, value: UInt32(16)) // Offset to first color record
-    append(result, value: UInt16(0)) // Index of the first palette's first color record
-    append(result, value: UInt16(2)) // Index of the second palette's first color record
+    append(result, value: UInt16(8)) // Number of palette entries in each palette
+    append(result, value: UInt16(16)) // Number of palettes
+    append(result, value: UInt16(24)) // Number of color records
+    append(result, value: UInt32(12 + 16 * 2)) // Offset to first color record
+    for i in 0 ..< 16 {
+        append(result, value: UInt16(i)) // Index of the palette's first color record
+    }
 
-    append(result, value: UInt8(255)) // Blue
-    append(result, value: UInt8(0)) // Green
-    append(result, value: UInt8(255)) // Red
-    append(result, value: UInt8(255)) // Alpha
+    for _ in 0 ..< 3 {
+        for i in 0 ..< 8 {
+            append(result, value: UInt8((((i / 4) % 2) == 1) ? 255 : 0)) // Blue
+            append(result, value: UInt8((((i / 2) % 2) == 1) ? 255 : 0)) // Green
+            append(result, value: UInt8((((i / 1) % 2) == 1) ? 255 : 0)) // Red
+            append(result, value: UInt8(255)) // Alpha
+        }
+    }
 
-    append(result, value: UInt8(255)) // Blue
-    append(result, value: UInt8(255)) // Green
-    append(result, value: UInt8(0)) // Red
-    append(result, value: UInt8(255)) // Alpha
-
-    append(result, value: UInt8(255)) // Blue
-    append(result, value: UInt8(0)) // Green
-    append(result, value: UInt8(0)) // Red
-    append(result, value: UInt8(255)) // Alpha
-
-    append(result, value: UInt8(0)) // Blue
-    append(result, value: UInt8(255)) // Green
-    append(result, value: UInt8(0)) // Red
-    append(result, value: UInt8(255)) // Alpha
     return result as Data
 }
 
